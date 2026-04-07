@@ -78,7 +78,8 @@ export class ValidationService {
             try {
                 const result = spawnSync(gradleBat, ['--version'], {
                     encoding: 'utf-8',
-                    timeout: 30000
+                    timeout: 30000,
+                    shell: true
                 });
                 const output = (result.stdout || '') + (result.stderr || '');
 
