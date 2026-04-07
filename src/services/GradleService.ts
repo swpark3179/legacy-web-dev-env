@@ -57,12 +57,10 @@ export class GradleService {
         };
 
         // Gradle 데몬이 확장에서 지정한 JDK를 사용하도록 명시 (데몬이 다른 JDK로 기동된 경우 버전 불일치 방지)
-        const javaHomeArg = this._settings.jdkPath.includes(' ')
-            ? `-Dorg.gradle.java.home="${this._settings.jdkPath}"`
-            : `-Dorg.gradle.java.home=${this._settings.jdkPath}`;
+        const javaHomeArg = `-Dorg.gradle.java.home=${this._settings.jdkPath}`;
 
         // --console=plain: TTY가 아닌 경우에도 출력을 줄 단위로 플러시하여 버퍼링 감소
-        this._runningProcess = spawn(gradleExe, [javaHomeArg, '--console=plain', command], { cwd: this._settings.projectRoot, env, shell: true });
+        this._runningProcess = spawn(gradleExe, [javaHomeArg, '--console=plain', command], { cwd: this._settings.projectRoot, env });
 
         const logStreamData = (data: Buffer) => {
             data.toString('utf8').split(/\r?\n/).forEach((line) => {
@@ -167,12 +165,10 @@ export class GradleService {
             JAVA_TOOL_OPTIONS: `${process.env.JAVA_TOOL_OPTIONS || ''} -Dfile.encoding=UTF-8`.trim(),
         };
 
-        const javaHomeArg = this._settings.jdkPath.includes(' ')
-            ? `-Dorg.gradle.java.home="${this._settings.jdkPath}"`
-            : `-Dorg.gradle.java.home=${this._settings.jdkPath}`;
+        const javaHomeArg = `-Dorg.gradle.java.home=${this._settings.jdkPath}`;
 
         // --console=plain: TTY가 아닌 경우에도 출력을 줄 단위로 플러시하여 버퍼링 감소
-        this._runningProcess = spawn(gradleExe, [javaHomeArg, '--console=plain', 'classes'], { cwd: this._settings.projectRoot, env, shell: true });
+        this._runningProcess = spawn(gradleExe, [javaHomeArg, '--console=plain', 'classes'], { cwd: this._settings.projectRoot, env });
 
         const logStreamData = (data: Buffer) => {
             data.toString('utf8').split(/\r?\n/).forEach((line) => {
