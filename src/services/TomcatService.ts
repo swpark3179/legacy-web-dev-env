@@ -339,8 +339,8 @@ export class TomcatService {
                 const lines = output.split(/\r?\n/).filter((l) => l.includes(`:${port}`) && l.includes('LISTENING'));
                 if (lines.length > 0) return true;
             }
-        } catch {
-            // ignore
+        } catch (error) {
+            this._log.appendLine(`[Tomcat] 포트 확인 중 오류 발생: ${this._normalizeErrorMessage(error)}`);
         }
         return false;
     }
