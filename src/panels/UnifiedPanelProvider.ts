@@ -267,8 +267,8 @@ export class UnifiedPanelProvider extends WebviewProvider {
             if (portMatch && portMatch[1]) {
                 this._tomcatState.port = parseInt(portMatch[1], 10);
             }
-        } catch {
-            // 파싱 실패 시 무시
+        } catch (error: unknown) {
+            this._log.appendLine(`server.xml 파싱 실패: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 
@@ -282,8 +282,8 @@ export class UnifiedPanelProvider extends WebviewProvider {
             if (match && match[1] !== undefined) {
                 this._tomcatState.contextRoot = match[1].trim();
             }
-        } catch {
-            // 파싱 실패 시 무시
+        } catch (error: unknown) {
+            this._log.appendLine(`web.xml 파싱 실패: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 
