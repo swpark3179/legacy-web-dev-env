@@ -67,8 +67,9 @@ export class TomcatService {
                         this._log.appendLine(`  [Java] ${path.dirname(baseClassName)}/${classFile}`);
                     });
                     await Promise.all(classCopyPromises);
-                } catch (err: any) {
-                    if (err.code === 'ENOENT') {
+                } catch (err) {
+                    const error = err as NodeJS.ErrnoException;
+                    if (error.code === 'ENOENT') {
                         this._log.appendLine(`  [경고] class 디렉터리 없음: ${classDir}`);
                     } else {
                         throw err;
@@ -91,8 +92,9 @@ export class TomcatService {
                     await fs.promises.copyFile(queryFile, destPath);
                     copiedCount++;
                     this._log.appendLine(`  [Query] ${relativePath}`);
-                } catch (err: any) {
-                    if (err.code !== 'ENOENT') throw err;
+                } catch (err) {
+                    const error = err as NodeJS.ErrnoException;
+                    if (error.code !== 'ENOENT') throw err;
                 }
             })());
         }
@@ -111,8 +113,9 @@ export class TomcatService {
                     await fs.promises.copyFile(staticFile, destPath);
                     copiedCount++;
                     this._log.appendLine(`  [Static] ${relativePath}`);
-                } catch (err: any) {
-                    if (err.code !== 'ENOENT') throw err;
+                } catch (err) {
+                    const error = err as NodeJS.ErrnoException;
+                    if (error.code !== 'ENOENT') throw err;
                 }
             })());
         }
