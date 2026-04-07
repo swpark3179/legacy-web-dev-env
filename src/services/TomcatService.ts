@@ -68,8 +68,7 @@ export class TomcatService {
                     });
                     await Promise.all(classCopyPromises);
                 } catch (err) {
-                    const error = err as NodeJS.ErrnoException;
-                    if (error.code === 'ENOENT') {
+                    if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
                         this._log.appendLine(`  [경고] class 디렉터리 없음: ${classDir}`);
                     } else {
                         throw err;
@@ -93,8 +92,7 @@ export class TomcatService {
                     copiedCount++;
                     this._log.appendLine(`  [Query] ${relativePath}`);
                 } catch (err) {
-                    const error = err as NodeJS.ErrnoException;
-                    if (error.code !== 'ENOENT') throw err;
+                    if (!(err instanceof Error && 'code' in err && err.code === 'ENOENT')) throw err;
                 }
             })());
         }
@@ -114,8 +112,7 @@ export class TomcatService {
                     copiedCount++;
                     this._log.appendLine(`  [Static] ${relativePath}`);
                 } catch (err) {
-                    const error = err as NodeJS.ErrnoException;
-                    if (error.code !== 'ENOENT') throw err;
+                    if (!(err instanceof Error && 'code' in err && err.code === 'ENOENT')) throw err;
                 }
             })());
         }
@@ -172,7 +169,6 @@ export class TomcatService {
         this._tomcatProcess = spawn(catalinaBat, ['run'], {
             cwd: path.join(this._settings.tomcatPath, 'bin'),
             env,
-            shell: true,
         });
         const startTime = new Date();
         const logStreamData = (data: Buffer) => {
@@ -285,7 +281,6 @@ export class TomcatService {
             const stopProcess = spawn(catalinaBat, ['stop'], {
                 cwd: path.join(this._settings.tomcatPath, 'bin'),
                 env,
-                shell: true,
             });
             const logStreamData = (data: Buffer) => {
                 data.toString().split(/\r?\n/).forEach((line) => {
@@ -342,8 +337,8 @@ export class TomcatService {
                 const lines = output.split(/\r?\n/).filter((l) => l.includes(`:${port}`) && l.includes('LISTENING'));
                 if (lines.length > 0) return true;
             }
-        } catch {
-            // ignore
+        } catch (error) {
+            this._log.appendLine(`[Tomcat] 포트 확인 중 오류 발생: ${this._normalizeErrorMessage(error)}`);
         }
         return false;
     }

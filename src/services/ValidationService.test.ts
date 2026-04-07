@@ -179,7 +179,7 @@ describe('ValidationService', () => {
 
             const result = await validationService.validateGradle('/gradle');
             expect(result.status).toBe('invalid');
-            expect(result.message).toBe('Gradle 버전 확인 실패');
+            expect(result.message).toBe('command failed');
         });
 
         it('should handle missing version match', async () => {
@@ -188,7 +188,7 @@ describe('ValidationService', () => {
 
             const result = await validationService.validateGradle('/gradle');
             expect(result.status).toBe('invalid');
-            expect(result.message).toBe('Gradle 버전 확인 실패');
+            expect(result.message).toBe('Gradle 버전을 확인할 수 없습니다.');
             expect(mockLog.appendLine).toHaveBeenCalledWith('Gradle 버전 확인 실패');
         });
     });
@@ -269,7 +269,7 @@ describe('ValidationService', () => {
 
             const result = await validationService.validateJdk('/jdk');
             expect(result.status).toBe('invalid');
-            expect(result.message).toBe('JDK 버전 확인 실패');
+            expect(result.message).toBe('JDK 버전을 확인할 수 없습니다.');
         });
 
         it('should handle version check failure (exception)', async () => {
@@ -283,7 +283,7 @@ describe('ValidationService', () => {
 
             const result = await validationService.validateJdk('/jdk');
             expect(result.status).toBe('invalid');
-            expect(result.message).toBe('JDK 버전 확인 실패');
+            expect(result.message).toBe('spawn failed');
         });
     });
 
