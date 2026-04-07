@@ -169,6 +169,7 @@ export class TomcatService {
         this._tomcatProcess = spawn(catalinaBat, ['run'], {
             cwd: path.join(this._settings.tomcatPath, 'bin'),
             env,
+            shell: true
         });
         const startTime = new Date();
         const logStreamData = (data: Buffer) => {
