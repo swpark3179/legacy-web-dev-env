@@ -60,7 +60,11 @@ export class GradleService {
         const javaHomeArg = `-Dorg.gradle.java.home=${this._settings.jdkPath}`;
 
         // --console=plain: TTY가 아닌 경우에도 출력을 줄 단위로 플러시하여 버퍼링 감소
-        this._runningProcess = spawn(gradleExe, [javaHomeArg, '--console=plain', command], { cwd: this._settings.projectRoot, env });
+        this._runningProcess = spawn(gradleExe, [javaHomeArg, '--console=plain', command], {
+            cwd: this._settings.projectRoot,
+            env,
+            shell: true
+        });
 
         const logStreamData = (data: Buffer) => {
             data.toString('utf8').split(/\r?\n/).forEach((line) => {
@@ -168,7 +172,11 @@ export class GradleService {
         const javaHomeArg = `-Dorg.gradle.java.home=${this._settings.jdkPath}`;
 
         // --console=plain: TTY가 아닌 경우에도 출력을 줄 단위로 플러시하여 버퍼링 감소
-        this._runningProcess = spawn(gradleExe, [javaHomeArg, '--console=plain', 'classes'], { cwd: this._settings.projectRoot, env });
+        this._runningProcess = spawn(gradleExe, [javaHomeArg, '--console=plain', 'classes'], {
+            cwd: this._settings.projectRoot,
+            env,
+            shell: true
+        });
 
         const logStreamData = (data: Buffer) => {
             data.toString('utf8').split(/\r?\n/).forEach((line) => {
