@@ -1,0 +1,70 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: '버전업 종류 선택 (major: 주 버전, minor: 부 버전, patch: 수 버전)'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Git 설정
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: 패키지 버전 업데이트
+        id: version
+        run: |
+          # npm version 명령어로 버전을 업데이트합니다. 이 명령어는 package.json 수정과 함께 git commit 및 태그 생성을 수행합니다.
+          NEW_VERSION=$(npm version ${{ github.event.inputs.version_type }})
+          echo "새 버전: $NEW_VERSION"
+          echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: 의존성 설치
+        run: npm install
+
+      - name: 프로젝트 빌드
+        run: npm run build:all
+
+      - name: VS Code 패키지 생성 (.vsix)
+        run: npx vsce package
+
+      - name: 업데이트된 변경사항 푸시
+        run: |
+          git push
+          git push --tags
+
+      - name: GitHub Release 생성 및 패키지 첨부
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: 🚀 릴리스 ${{ steps.version.outputs.version }}
+          body: |
+            ## 🚀 새로운 버전이 배포되었습니다! (${{ steps.version.outputs.version }})
+
+            자동 생성된 릴리스 노트를 통해 상세 변경 사항을 확인할 수 있습니다.
+            하단의 첨부 파일(`.vsix`)을 다운로드하여 VS Code에 설치하세요.
+          generate_release_notes: true
+          files: "*.vsix"

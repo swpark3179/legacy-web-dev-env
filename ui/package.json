@@ -1,0 +1,25 @@
+{
+    "name": "webview-ui",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@vscode/webview-ui-toolkit": "^1.4.0",
+        "@xyflow/react": "^12.6.4",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
+    },
+    "devDependencies": {
+        "@types/react": "^18.2.48",
+        "@types/react-dom": "^18.2.18",
+        "@types/vscode-webview": "^1.57.4",
+        "@vitejs/plugin-react": "^4.2.1",
+        "typescript": "^5.3.3",
+        "vite": "^7.3.1"
+    }
+}
