@@ -94,9 +94,10 @@ export class ValidationService {
                     }
                 }
                 this._log.appendLine('Gradle 버전 확인 실패');
-                throw new Error();
-            } catch {
-                return { status: 'invalid', message: 'Gradle 버전 확인 실패' };
+                throw new Error('Gradle 버전을 확인할 수 없습니다.');
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'Gradle 버전 확인 실패';
+                return { status: 'invalid', message: errorMessage };
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
@@ -139,9 +140,10 @@ export class ValidationService {
                         return { status: 'valid', message, version };
                     } else return { status: 'invalid', message: `JDK ${version} (1.8.x 필요)`, version };
                 }
-                throw new Error();
-            } catch {
-                return { status: 'invalid', message: 'JDK 버전 확인 실패' };
+                throw new Error('JDK 버전을 확인할 수 없습니다.');
+            } catch (error) {
+                const errorMessage = error instanceof Error ? error.message : 'JDK 버전 확인 실패';
+                return { status: 'invalid', message: errorMessage };
             }
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
@@ -187,9 +189,9 @@ export class ValidationService {
                         return { status: 'invalid', message: `Tomcat ${version} (9.0.x 또는 8.5.x 필요)` };
                     }
                 }
-                throw new Error();
+                throw new Error('RELEASE-NOTES 파일에서 Tomcat 버전을 확인할 수 없습니다.');
             }
-            throw new Error();
+            throw new Error('RELEASE-NOTES 파일을 찾을 수 없습니다.');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             return { status: 'invalid', message: errorMessage };
