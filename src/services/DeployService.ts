@@ -142,8 +142,9 @@ export class DeployService {
                         this._log.appendLine(`  [Java] ${path.dirname(baseClassName)}/${classFile} 복사됨`);
                     });
                     await Promise.all(classCopyPromises);
-                } catch (err: any) {
-                    if (err.code === 'ENOENT') {
+                } catch (err) {
+                    const error = err as NodeJS.ErrnoException;
+                    if (error.code === 'ENOENT') {
                         this._log.appendLine(`  [경고] class 디렉터리 없음: ${classDir} 복사 건너뜀`);
                     } else {
                         throw err;
@@ -164,8 +165,9 @@ export class DeployService {
                     await fs.promises.mkdir(destDir, { recursive: true });
                     await fs.promises.copyFile(queryFile, destPath);
                     this._log.appendLine(`  [Query] ${relativePath} 복사됨`);
-                } catch (err: any) {
-                    if (err.code !== 'ENOENT') throw err;
+                } catch (err) {
+                    const error = err as NodeJS.ErrnoException;
+                    if (error.code !== 'ENOENT') throw err;
                 }
             })());
         }
