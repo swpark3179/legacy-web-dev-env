@@ -71,6 +71,7 @@ describe('SettingsService', () => {
 
     describe('loadSavedSettings', () => {
         it('should return false and log error when config.get throws', () => {
+            jest.spyOn(console, 'error').mockImplementation(() => {});
             const testError = new Error('Test Error');
             (mockConfig.get as jest.Mock).mockImplementation(() => {
                 throw testError;
@@ -80,6 +81,7 @@ describe('SettingsService', () => {
 
             expect(result).toBe(false);
             expect(mockLog.appendLine).toHaveBeenCalledWith('[settings.json] 설정 로드 실패: Error: Test Error');
+            (console.error as jest.Mock).mockRestore();
         });
 
         it('should return true and update settings when all paths are valid', () => {
@@ -191,6 +193,7 @@ describe('SettingsService', () => {
         it('should update multiple configurations if user selects "예"', async () => {
             (vscode.window.showInformationMessage as jest.Mock).mockResolvedValue('예');
             (vscode.extensions.getExtension as jest.Mock).mockReturnValue({});
+            (mockConfig.update as jest.Mock).mockResolvedValue(undefined);
 
             await settingsService.initGlobalSettings();
 
