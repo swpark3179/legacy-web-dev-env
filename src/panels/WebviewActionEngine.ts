@@ -22,6 +22,7 @@ export interface IWebviewActionEngine {
     handleApplyProjectSettings(options: ProjectSettingsOptions): Promise<void>;
     handleSetupHomeSettings(): Promise<void>;
     applyChangedFiles(): Promise<void>;
+    applyLibrary(): void;
     log?(message: string): void;
 }
 
@@ -83,6 +84,9 @@ export async function handleWebviewMessage(
             break;
         case 'applyChangedFiles':
             await engine.applyChangedFiles();
+            break;
+        case 'applyLibrary':
+            engine.applyLibrary();
             break;
     }
 }

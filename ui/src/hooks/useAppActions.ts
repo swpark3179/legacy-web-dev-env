@@ -62,6 +62,10 @@ export function useAppActions(deps: UseAppActionsDeps) {
         stopGradle: useCallback(() => {
             postMessage({ type: 'stopGradle' });
         }, []),
+        applyLibrary: useCallback(() => {
+            setIsGradleRunning(true);
+            postMessage({ type: 'applyLibrary' });
+        }, [setIsGradleRunning]),
     };
 
     const tomcat = {
