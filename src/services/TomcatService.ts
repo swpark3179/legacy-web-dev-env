@@ -33,7 +33,7 @@ export class TomcatService {
     }
 
     // 변경된 파일을 실행 중인 Tomcat에 적용
-    async applyChangedFilesToTomcat(changedFiles: { java: string[], query: string[], static: string[] }): Promise<void> {
+    async applyChangedFilesToTomcat(changedFiles: { java: string[], query: string[], config: string[], static: string[] }): Promise<void> {
         const projectRoot = this._settings.projectRoot.replace(/\\/g, '/');
         const webappsPath = path.join(this._tomcatPath, 'webapps', this._tomcatState.contextRoot);
         const classesPath = path.join(webappsPath, 'WEB-INF', 'classes');
@@ -91,6 +91,26 @@ export class TomcatService {
                     await fs.promises.copyFile(queryFile, destPath);
                     copiedCount++;
                     this._log.appendLine(`  [Query] ${relativePath}`);
+                } catch (err) {
+                    if (!(err instanceof Error && 'code' in err && err.code === 'ENOENT')) throw err;
+                }
+            })());
+        }
+
+        // 2-1. Config 파일 복사
+        for (const configFile of changedFiles.config) {
+            const normalizedConfigFile = configFile.replace(/\\/g, '/');
+            const relativePath = normalizedConfigFile.replace(`${projectRoot}/src/config/`, '');
+            const destPath = path.join(classesPath, relativePath);
+            const destDir = path.dirname(destPath);
+
+            copyPromises.push((async () => {
+                try {
+                    await fs.promises.access(configFile);
+                    await fs.promises.mkdir(destDir, { recursive: true });
+                    await fs.promises.copyFile(configFile, destPath);
+                    copiedCount++;
+                    this._log.appendLine(`  [Config] ${relativePath}`);
                 } catch (err) {
                     if (!(err instanceof Error && 'code' in err && err.code === 'ENOENT')) throw err;
                 }
@@ -166,10 +186,9 @@ export class TomcatService {
         };
         // tomcat 기동 시작
         this._log.appendLine(`[Tomcat] catalina.bat run 실행... (${_debugMode ? '디버그 모드' : '일반 모드'})`);
-        this._tomcatProcess = spawn(catalinaBat, ['run'], {
+        this._tomcatProcess = spawn(process.env.comspec || 'cmd.exe', ['/c', catalinaBat, 'run'], {
             cwd: path.join(this._settings.tomcatPath, 'bin'),
             env,
-            shell: true
         });
         const startTime = new Date();
         const logStreamData = (data: Buffer) => {
@@ -279,7 +298,7 @@ export class TomcatService {
                 JAVA_HOME: this._settings.jdkPath,
             };
             this._log.appendLine('[Tomcat] catalina.bat stop 실행...');
-            const stopProcess = spawn(catalinaBat, ['stop'], {
+            const stopProcess = spawn(process.env.comspec || 'cmd.exe', ['/c', catalinaBat, 'stop'], {
                 cwd: path.join(this._settings.tomcatPath, 'bin'),
                 env,
             });
@@ -329,7 +348,7 @@ export class TomcatService {
         }
     }
 
-    // 7001, 12001 포트가 사용 중인지 확인
+    // 사용자가 입력한 포트가 사용 중인지 확인
     areTomcatPortsInUse(): boolean {
         const ports = [this._tomcatState.port];
         try {
@@ -344,7 +363,7 @@ export class TomcatService {
         return false;
     }
 
-    // 7001, 12001 포트로 리스닝 중인 프로세스를 찾아 강제 종료
+    // 사용자가 입력한 포트로 리스닝 중인 프로세스를 찾아 강제 종료
     killProcessesOnTomcatPorts(): void {
         const ports = [this._tomcatState.port];
         const pids = new Set<number>();

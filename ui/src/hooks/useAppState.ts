@@ -55,7 +55,7 @@ export function useAppState() {
     const [isGradleRunning, setIsGradleRunning] = useState(false);
 
     // 변경 파일 (Tomcat 기동 중 감지)
-    const [changedFiles, setChangedFiles] = useState<{ java: string[], query: string[] }>({ java: [], query: [] });
+    const [changedFiles, setChangedFiles] = useState<{ java: string[], query: string[], config: string[] }>({ java: [], query: [], config: [] });
 
     // Tomcat 상태 업데이트
     const tomcatStateUpdate = (tomcatStateMsg: TomcatState) => {

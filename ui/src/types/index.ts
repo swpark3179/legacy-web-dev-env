@@ -57,7 +57,7 @@ export interface MessageFromExtension {
     tomcat?: TomcatState;
     isGradleRunning?: boolean;
     page?: string;
-    changedFiles?: { java: string[], query: string[] };
+    changedFiles?: { java: string[], query: string[], config: string[] };
     validationState?: ValidationState;
 }
 

@@ -8,7 +8,7 @@ export interface UseAppActionsDeps {
     setCurrentPage: (page: PageKind) => void;
     setIsGradleRunning: (value: boolean) => void;
     setTomcatIsHotReloading: (value: boolean) => void;
-    setChangedFiles: (value: { java: string[], query: string[] }) => void;
+    setChangedFiles: (value: { java: string[], query: string[], config: string[] }) => void;
 }
 
 /**
@@ -91,7 +91,7 @@ export function useAppActions(deps: UseAppActionsDeps) {
 
     const deploy = {
         applyChangedFiles: useCallback(() => {
-            setChangedFiles({ java: [], query: [] });
+            setChangedFiles({ java: [], query: [], config: [] });
             postMessage({ type: 'applyChangedFiles' });
         }, [setChangedFiles]),
     };

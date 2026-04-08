@@ -37,11 +37,13 @@ export class DeployService {
         this.stopFileWatcher();
         this._changedFiles.java.length = 0;
         this._changedFiles.query.length = 0;
+        this._changedFiles.config.length = 0;
 
         const projectRoot = this._settings.projectRoot;
         const dirs = [
             { pattern: new vscode.RelativePattern(projectRoot, 'src/java/**/*'), category: 'java' as const },
             { pattern: new vscode.RelativePattern(projectRoot, 'src/query/**/*'), category: 'query' as const },
+            { pattern: new vscode.RelativePattern(projectRoot, 'src/config/**/*'), category: 'config' as const },
             ...(!this._tomcatService.isDeveloperMode
                 ? [{ pattern: new vscode.RelativePattern(projectRoot, 'src/webapp/**/*'), category: 'static' as const }]
                 : []),
@@ -54,9 +56,9 @@ export class DeployService {
             this._fileWatchers.push(watcher);
         }
         if (this._tomcatService.isDeveloperMode) {
-            this._log.appendLine('[FileWatcher] 파일 변경 감지 시작 (src/java, src/query)');
+            this._log.appendLine('[FileWatcher] 파일 변경 감지 시작 (src/java, src/query, src/config)');
         } else {
-            this._log.appendLine('[FileWatcher] 파일 변경 감지 시작 (src/java, src/query, src/webapp)');
+            this._log.appendLine('[FileWatcher] 파일 변경 감지 시작 (src/java, src/query, src/config, src/webapp)');
         }
     }
 
@@ -172,9 +174,29 @@ export class DeployService {
             })());
         }
 
+        // 3. Config 파일 복사
+        for (const configFile of this._changedFiles.config) {
+            const normalizedConfigFile = configFile.replace(/\\/g, '/');
+            const relativePath = normalizedConfigFile.replace(`${this._settings.projectRoot.replace(/\\/g, '/')}/src/config/`, '');
+            const destPath = path.join(classesPath, relativePath);
+            const destDir = path.dirname(destPath);
+
+            copyPromises.push((async () => {
+                try {
+                    await fs.promises.mkdir(destDir, { recursive: true });
+                    await fs.promises.copyFile(configFile, destPath);
+                    this._log.appendLine(`  [Config] ${relativePath} 복사됨`);
+                } catch (err) {
+                    const error = err as NodeJS.ErrnoException;
+                    if (error.code !== 'ENOENT') throw err;
+                }
+            })());
+        }
+
         await Promise.all(copyPromises);
         this._log.appendLine('[배포 적용] 변경 파일 Tomcat 반영 완료.');
         this._changedFiles.java.length = 0;
         this._changedFiles.query.length = 0;
+        this._changedFiles.config.length = 0;
     }
 }

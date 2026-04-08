@@ -8,7 +8,7 @@ export interface Settings {
 
 // ==================== Validation ====================
 export type ValidationStatus = 'pending' | 'validating' | 'valid' | 'warning' | 'invalid';
-export type ChangedFiles = { java: string[], query: string[] };
+export type ChangedFiles = { java: string[], query: string[], config: string[] };
 
 export interface ValidationItem {
     status: ValidationStatus;
@@ -75,7 +75,7 @@ export type MessageFromWebview =
 
 export type MessageFromExtension =
     | { type: 'stateUpdate'; settings: Settings }
-    | { type: 'mainStateUpdate'; settings?: Settings; isGradleRunning?: boolean; tomcat?: TomcatState; validation?: ValidationState; changedFiles?: { java: string[], query: string[] } }
+    | { type: 'mainStateUpdate'; settings?: Settings; isGradleRunning?: boolean; tomcat?: TomcatState; validation?: ValidationState; changedFiles?: ChangedFiles }
     | { type: 'navigateTo'; page: string; validation?: ValidationState; validationState?: ValidationState }
     | { type: 'tomcatStateUpdate'; tomcat: TomcatState }
-    | { type: 'changedFilesUpdate'; changedFiles: { java: string[], query: string[] } };
+    | { type: 'changedFilesUpdate'; changedFiles: ChangedFiles };

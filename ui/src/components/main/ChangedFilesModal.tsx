@@ -4,14 +4,15 @@ import { Modal } from '../common';
 export const ChangedFilesModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
-    changedFiles: { java: string[], query: string[] };
+    changedFiles: { java: string[], query: string[], config: string[] };
     onApply: () => void;
     isHotReloading: boolean;
 }> = ({ isOpen, onClose, changedFiles, onApply, isHotReloading }) => {
     const [isJavaOpen, setIsJavaOpen] = useState(true);
     const [isQueryOpen, setIsQueryOpen] = useState(true);
+    const [isConfigOpen, setIsConfigOpen] = useState(true);
 
-    const totalCount = changedFiles.java.length + changedFiles.query.length;
+    const totalCount = changedFiles.java.length + changedFiles.query.length + changedFiles.config.length;
 
     const getFileName = (p: string) => {
         const parts = p.split('/');
@@ -80,6 +81,7 @@ export const ChangedFilesModal: React.FC<{
             }}>
                 {renderSection('Java', changedFiles.java, isJavaOpen, () => setIsJavaOpen(!isJavaOpen))}
                 {renderSection('Query', changedFiles.query, isQueryOpen, () => setIsQueryOpen(!isQueryOpen))}
+                {renderSection('Config', changedFiles.config, isConfigOpen, () => setIsConfigOpen(!isConfigOpen))}
             </div>
         </Modal>
     );
