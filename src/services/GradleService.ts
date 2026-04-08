@@ -229,9 +229,13 @@ export class GradleService {
         const initScriptPath = path.join(vscodeDirPath, 'copy-lib.vscode-init.gradle');
         if (!fs.existsSync(initScriptPath)) {
             const initScriptContent = `allprojects {
-    task copyLib(type: Copy) {
-        into "\${projectDir}/src/webapp/WEB-INF/lib"
-        from configurations.runtimeClasspath
+    afterEvaluate { project ->
+        project.task('copyLib', type: Copy) {
+            group = "custom"
+            description = "Copy runtime dependencies to WEB-INF/lib"
+            into "src/webapp/WEB-INF/lib"
+            from configurations.runtimeClasspath
+        }
     }
 }`;
             fs.writeFileSync(initScriptPath, initScriptContent, 'utf8');
