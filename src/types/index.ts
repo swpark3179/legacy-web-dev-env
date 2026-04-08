@@ -70,7 +70,8 @@ export type MessageFromWebview =
     | { type: 'killTomcatPorts' }
     | { type: 'applyProjectSettings'; options: ProjectSettingsOptions }
     | { type: 'setupHomeSettings' }
-    | { type: 'applyChangedFiles' };
+    | { type: 'applyChangedFiles' }
+    | { type: 'applyLibrary' };
 
 export type MessageFromExtension =
     | { type: 'stateUpdate'; settings: Settings }

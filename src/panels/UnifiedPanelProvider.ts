@@ -223,6 +223,11 @@ export class UnifiedPanelProvider extends WebviewProvider {
                 await this._deployService.applyChangedFiles();
                 this._postMessage({ type: 'changedFilesUpdate', changedFiles: this._changedFiles });
             },
+            applyLibrary: () => {
+                this._gradleService.applyLibrary(() => {
+                    this._notifyGradleComplete();
+                });
+            },
             log: (message) => this._log.appendLine(message),
         };
     }

@@ -6,12 +6,25 @@ export const BuildPanel: React.FC<{
     onBuildClasses: () => void;
     onCleanProject: () => void;
     onStopGradle: () => void;
+    onApplyLibrary: () => void;
     state: AppState;
-}> = ({ onBuildClasses, onCleanProject, onStopGradle, state }) => {
+}> = ({ onBuildClasses, onCleanProject, onStopGradle, onApplyLibrary, state }) => {
     const { isGradleRunning } = state.build;
 
+    const headerRight = (
+        <Button
+            variant="secondary"
+            className="header-btn"
+            onClick={onApplyLibrary}
+            disabled={isGradleRunning || state.tomcat.initializing}
+            title="라이브러리 적용"
+        >
+            라이브러리 적용
+        </Button>
+    );
+
     return (
-        <Panel title="빌드" className="build-panel">
+        <Panel title="빌드" className="build-panel" headerRight={headerRight}>
             <div className="build-panel-content">
                 <ButtonGroup>
                     <Button

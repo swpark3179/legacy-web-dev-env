@@ -18,16 +18,18 @@ export class GradleService {
     }
 
     // Gradle 명령 실행
-    runCommand(command: string, taskName: string): void {
+    runCommand(command: string, taskName: string, onComplete?: (success: boolean) => void): void {
         if (!this._settings.gradlePath || !this._settings.jdkPath || !this._settings.projectRoot) {
             vscode.window.showErrorMessage('Gradle, JDK 경로 또는 프로젝트 루트가 설정되지 않았습니다.');
             this._onProcessComplete?.();
+            if (onComplete) onComplete(false);
             return;
         }
 
         if (this._runningProcess) {
             vscode.window.showWarningMessage('이전 작업이 아직 실행 중입니다.');
             this._onProcessComplete?.();
+            if (onComplete) onComplete(false);
             return;
         }
 
@@ -79,13 +81,15 @@ export class GradleService {
             const duration = ((endTime.getTime() - startTime.getTime()) / 1000).toFixed(1);
 
             this._log.appendLine('');
-            if (code === 0) {
+            const isSuccess = code === 0;
+            if (isSuccess) {
                 this._log.appendLine(`[${endTime.toLocaleTimeString()}] ${taskName} 완료 (${duration}초)`);
             } else {
                 this._log.appendLine(`[${endTime.toLocaleTimeString()}] ${taskName} 실패 (종료 코드: ${code})`);
             }
             this._runningProcess = undefined;
             this._onProcessComplete?.();
+            if (onComplete) onComplete(isSuccess);
         });
 
         this._runningProcess.on('error', (err: Error) => {
@@ -93,6 +97,7 @@ export class GradleService {
             vscode.window.showErrorMessage(`${taskName} 실행 오류: ${err.message}`);
             this._runningProcess = undefined;
             this._onProcessComplete?.();
+            if (onComplete) onComplete(false);
         });
     }
 
@@ -212,5 +217,84 @@ export class GradleService {
     // Clean 실행
     cleanProject(): void {
         this.runCommand('clean', '빌드 초기화(clean)');
+    }
+
+    // 라이브러리 적용 실행
+    applyLibrary(onComplete: (success: boolean) => void): void {
+        const vscodeDirPath = path.join(this._settings.projectRoot, '.vscode');
+        if (!fs.existsSync(vscodeDirPath)) {
+            fs.mkdirSync(vscodeDirPath, { recursive: true });
+        }
+
+        const initScriptPath = path.join(vscodeDirPath, 'copy-lib.vscode-init.gradle');
+        if (!fs.existsSync(initScriptPath)) {
+            const initScriptContent = `allprojects {
+    task copyLib(type: Copy) {
+        into "\${projectDir}/src/webapp/WEB-INF/lib"
+        from configurations.runtimeClasspath
+    }
+}`;
+            fs.writeFileSync(initScriptPath, initScriptContent, 'utf8');
+        }
+
+        const command = `--init-script .vscode/copy-lib.vscode-init.gradle copyLib`;
+
+        this.runCommand(command, '라이브러리 적용', (success) => {
+            if (success) {
+                this._updateClasspathAfterLibraryApply();
+            } else {
+                vscode.window.showErrorMessage('라이브러리 복사(Gradle) 중 오류가 발생했습니다. 출력창을 확인해주세요.');
+                this._log.show(true);
+            }
+            onComplete(success);
+        });
+    }
+
+    private _updateClasspathAfterLibraryApply(): void {
+        const classpathFile = path.join(this._settings.projectRoot, '.classpath');
+        if (!fs.existsSync(classpathFile)) {
+            vscode.window.showErrorMessage('.classpath 파일을 찾을 수 없습니다.');
+            return;
+        }
+
+        try {
+            let content = fs.readFileSync(classpathFile, 'utf8');
+            const lines = content.split(/\r?\n/);
+
+            // kind="lib" 인 라인 모두 제거
+            const newLines = lines.filter(line => !line.includes('<classpathentry kind="lib"'));
+
+            const libDir = path.join(this._settings.projectRoot, 'src', 'webapp', 'WEB-INF', 'lib');
+            const jarFiles: string[] = [];
+
+            if (fs.existsSync(libDir)) {
+                const files = fs.readdirSync(libDir);
+                for (const file of files) {
+                    if (file.toLowerCase().endsWith('.jar')) {
+                        jarFiles.push(file);
+                    }
+                }
+            }
+
+            const classpathEntryLines = jarFiles.map(jar => `\t<classpathentry kind="lib" path="src/webapp/WEB-INF/lib/${jar}"/>`);
+
+            // </classpath> 닫히기 전 위치 찾기
+            const insertIndex = newLines.findIndex(line => line.includes('</classpath>'));
+
+            if (insertIndex !== -1) {
+                newLines.splice(insertIndex, 0, ...classpathEntryLines);
+            }
+
+            // 빈 라인 제거
+            const finalLines = newLines.filter(line => line.trim() !== '');
+
+            fs.writeFileSync(classpathFile, finalLines.join('\n'), 'utf8');
+            vscode.window.showInformationMessage('라이브러리 적용이 완료되었습니다.');
+            this._log.appendLine('라이브러리 적용: .classpath 갱신 완료');
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            this._log.appendLine(`[ERROR] .classpath 갱신 중 오류: ${errorMessage}`);
+            vscode.window.showErrorMessage(`.classpath 파일 갱신 중 오류가 발생했습니다: ${errorMessage}`);
+        }
     }
 }

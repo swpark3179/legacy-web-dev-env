@@ -14,6 +14,7 @@ const MainPage: React.FC<{ state: AppState, actions: AppActions }> = ({ state, a
                 onBuildClasses={actions.build.buildClasses}
                 onCleanProject={actions.build.cleanProject}
                 onStopGradle={actions.build.stopGradle}
+                onApplyLibrary={actions.build.applyLibrary}
                 state={state}
             />
 
