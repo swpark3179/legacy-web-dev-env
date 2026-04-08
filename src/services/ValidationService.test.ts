@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { spawnSync } from 'child_process';
+import { spawn } from 'child_process';
 import { ValidationService } from './ValidationService';
 import { ValidationState, Settings } from '../types';
+import { EventEmitter } from 'events';
 
 jest.mock('vscode', () => ({
     OutputChannel: jest.fn(),
@@ -17,8 +18,28 @@ jest.mock('fs', () => ({
 
 jest.mock('child_process', () => ({
     execFileSync: jest.fn(),
-    spawnSync: jest.fn(),
+    spawn: jest.fn(),
 }));
+
+// Helper to mock child_process.spawn
+function createMockSpawn(stdoutData: string, stderrData: string, closeCode: number, error?: Error) {
+    const mockProcess: any = new EventEmitter();
+    mockProcess.stdout = new EventEmitter();
+    mockProcess.stderr = new EventEmitter();
+
+    // Simulate async data emission
+    setTimeout(() => {
+        if (error) {
+            mockProcess.emit('error', error);
+        } else {
+            if (stdoutData) mockProcess.stdout.emit('data', Buffer.from(stdoutData));
+            if (stderrData) mockProcess.stderr.emit('data', Buffer.from(stderrData));
+            mockProcess.emit('close', closeCode);
+        }
+    }, 0);
+
+    return mockProcess;
+}
 
 describe('ValidationService', () => {
     let mockLog: any;
@@ -154,7 +175,7 @@ describe('ValidationService', () => {
 
         it('should return valid if version starts with 6.9', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (spawnSync as jest.Mock).mockReturnValue({ stdout: 'Gradle 6.9.1', stderr: '' });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('Gradle 6.9.1', '', 0));
 
             const result = await validationService.validateGradle('/gradle');
             expect(result.status).toBe('valid');
@@ -164,7 +185,7 @@ describe('ValidationService', () => {
 
         it('should return invalid if version does not start with 6.9', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (spawnSync as jest.Mock).mockReturnValue({ stdout: 'Gradle 7.0.0', stderr: '' });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('Gradle 7.0.0', '', 0));
 
             const result = await validationService.validateGradle('/gradle');
             expect(result.status).toBe('invalid');
@@ -173,9 +194,7 @@ describe('ValidationService', () => {
 
         it('should handle version check failure (exception)', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (spawnSync as jest.Mock).mockImplementation(() => {
-                throw new Error('command failed');
-            });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('', '', 1, new Error('command failed')));
 
             const result = await validationService.validateGradle('/gradle');
             expect(result.status).toBe('invalid');
@@ -184,7 +203,7 @@ describe('ValidationService', () => {
 
         it('should handle missing version match', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (spawnSync as jest.Mock).mockReturnValue({ stdout: 'some output without version', stderr: '' });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('some output without version', '', 0));
 
             const result = await validationService.validateGradle('/gradle');
             expect(result.status).toBe('invalid');
@@ -214,10 +233,7 @@ describe('ValidationService', () => {
                 if (pathStr.includes('dcevm')) return true;
                 return false;
             });
-            (spawnSync as jest.Mock).mockReturnValue({
-                stdout: '',
-                stderr: 'java version "1.8.0_291"',
-            });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('', 'java version "1.8.0_291"', 0));
 
             const result = await validationService.validateJdk('/jdk');
             expect(result.status).toBe('valid');
@@ -231,10 +247,7 @@ describe('ValidationService', () => {
                 if (pathStr.includes('java') || pathStr.includes('java.exe')) return true;
                 return false;
             });
-            (spawnSync as jest.Mock).mockReturnValue({
-                stdout: 'version "1.8.0_291"',
-                stderr: '',
-            });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('version "1.8.0_291"', '', 0));
 
             const result = await validationService.validateJdk('/jdk');
             expect(result.status).toBe('valid');
@@ -247,10 +260,7 @@ describe('ValidationService', () => {
                 if (pathStr.includes('java') || pathStr.includes('java.exe')) return true;
                 return false;
             });
-            (spawnSync as jest.Mock).mockReturnValue({
-                stdout: 'version "11.0.12"',
-                stderr: '',
-            });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('version "11.0.12"', '', 0));
 
             const result = await validationService.validateJdk('/jdk');
             expect(result.status).toBe('invalid');
@@ -262,10 +272,7 @@ describe('ValidationService', () => {
                 if (pathStr.includes('java') || pathStr.includes('java.exe')) return true;
                 return false;
             });
-            (spawnSync as jest.Mock).mockReturnValue({
-                stdout: 'unrecognized output',
-                stderr: '',
-            });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('unrecognized output', '', 0));
 
             const result = await validationService.validateJdk('/jdk');
             expect(result.status).toBe('invalid');
@@ -277,9 +284,7 @@ describe('ValidationService', () => {
                 if (pathStr.includes('java') || pathStr.includes('java.exe')) return true;
                 return false;
             });
-            (spawnSync as jest.Mock).mockImplementation(() => {
-                throw new Error('spawn failed');
-            });
+            (spawn as jest.Mock).mockReturnValue(createMockSpawn('', '', 1, new Error('spawn failed')));
 
             const result = await validationService.validateJdk('/jdk');
             expect(result.status).toBe('invalid');
@@ -402,7 +407,7 @@ describe('ValidationService', () => {
             expect(validationService.validateJdk).toHaveBeenCalledWith('/jdk');
             expect(validationService.validateTomcat).toHaveBeenCalledWith('/tomcat');
 
-            expect(onUpdateMock).toHaveBeenCalledTimes(8); // Initial + before/after for 3 tools + 1 final update
+            expect(onUpdateMock).toHaveBeenCalledTimes(2); // Initial + 1 final update
 
             expect(mockValidationState.allValid).toBe(true);
             expect(mockValidationState.isValidating).toBe(false);
