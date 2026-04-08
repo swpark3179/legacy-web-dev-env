@@ -77,10 +77,9 @@ export class ValidationService {
                     return;
                 }
 
-                // Security directive: Avoid shell: true for bat files, use process.env.comspec
-                const shellCommand = process.env.comspec || 'cmd.exe';
-                const child = spawn(shellCommand, ['/c', gradleBat, '--version'], {
-                    timeout: 30000
+                const child = spawn(gradleBat, ['--version'], {
+                    timeout: 30000,
+                    shell: true
                 });
 
                 let output = '';
