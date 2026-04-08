@@ -268,7 +268,7 @@ export class GradleService {
             // kind="lib" 인 라인 모두 제거
             const newLines = lines.filter(line => !line.includes('<classpathentry kind="lib"'));
 
-            const libDir = path.join(this._settings.projectRoot, 'src', 'webapp', 'WEB-INF', 'lib');
+            const libDir = path.join(this._settings.projectRoot, '.vscode', 'lib');
             const jarFiles: string[] = [];
 
             if (fs.existsSync(libDir)) {
@@ -280,7 +280,7 @@ export class GradleService {
                 }
             }
 
-            const classpathEntryLines = jarFiles.map(jar => `\t<classpathentry kind="lib" path="src/webapp/WEB-INF/lib/${jar}"/>`);
+            const classpathEntryLines = jarFiles.map(jar => `\t<classpathentry kind="lib" path=".vscode/lib/${jar}"/>`);
 
             // </classpath> 닫히기 전 위치 찾기
             const insertIndex = newLines.findIndex(line => line.includes('</classpath>'));
