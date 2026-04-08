@@ -124,10 +124,13 @@ export class UnifiedPanelProvider extends WebviewProvider {
                 this._validationService.validateAll(
                     this._settings,
                     () => this._sendState(),
-                    () => {
+                    async () => {
                         this._settingsService.saveSettings();
                         // 검증 완료 시 항상 프로젝트 설정 초기화 수행
-                        this._projectService.initProjectSettings({ hideSimpleFolder: true, hideExtFolder: false, initProjectFile: true });
+                        await this._projectService.initProjectSettings({ hideSimpleFolder: true, hideExtFolder: false, initProjectFile: true });
+                        this._gradleService.applyLibrary(() => {
+                            this._notifyGradleComplete();
+                        });
                         this._postMessage({ type: 'navigateTo', page: 'main' });
                     }
                 ),
@@ -215,8 +218,12 @@ export class UnifiedPanelProvider extends WebviewProvider {
                 this._postMessage({ type: 'tomcatStateUpdate', tomcat: this._tomcatState });
                 return Promise.resolve();
             },
-            handleApplyProjectSettings: (options) =>
-                this._projectService.initProjectSettings(options),
+            handleApplyProjectSettings: async (options) => {
+                await this._projectService.initProjectSettings(options);
+                this._gradleService.applyLibrary(() => {
+                    this._notifyGradleComplete();
+                });
+            },
             handleSetupHomeSettings: () =>
                 this._projectService.handleApplyHomeSettings(),
             applyChangedFiles: async () => {
