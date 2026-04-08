@@ -232,8 +232,8 @@ export class GradleService {
     afterEvaluate { project ->
         project.task('copyLib', type: Copy) {
             group = "custom"
-            description = "Copy runtime dependencies to WEB-INF/lib"
-            into "src/webapp/WEB-INF/lib"
+            description = "Copy runtime dependencies to .vscode/lib"
+            into ".vscode/lib"
             from configurations.runtimeClasspath
         }
     }
