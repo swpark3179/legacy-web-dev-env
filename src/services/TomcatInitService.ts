@@ -117,7 +117,7 @@ export class TomcatInitService {
         const srcQueryPath = path.join(this._settings.projectRoot, 'src', 'query');
         const srcConfigPath: string = path.join(this._settings.projectRoot, 'src', 'config');
         const webappPath = path.join(this._settings.projectRoot, 'src', 'webapp');
-        const projectLibPath = path.join(this._settings.projectRoot, 'src', 'lib');
+        const projectLibPath = path.join(this._settings.projectRoot, '.vscode', 'lib');
         const tomcatLibPath = path.join(_deployPath, 'WEB-INF', 'lib');
         const targetClassesPath = path.join(_deployPath, 'WEB-INF', 'classes');
         if (!fs.pathExistsSync(srcClassesPath)) {
