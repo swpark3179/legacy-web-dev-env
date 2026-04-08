@@ -125,6 +125,11 @@ button:hover {
   background-color: var(--vscode-button-hoverBackground);
 }
 
+button:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
