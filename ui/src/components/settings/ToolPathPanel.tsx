@@ -11,11 +11,13 @@ export const ToolPathPanel: React.FC<{settings: Settings, validation: Validation
         const path = settings[`${target}Path` as keyof Settings];
         const validationItem = validation[target];
 
+        const inputId = `tool-path-${target}`;
         return (
             <div className="form-group">
-                <label>{label}</label>
+                <label htmlFor={inputId}>{label}</label>
                 <div className="form-row">
                     <input
+                        id={inputId}
                         type="text"
                         value={path}
                         placeholder={placeholder}
@@ -24,12 +26,13 @@ export const ToolPathPanel: React.FC<{settings: Settings, validation: Validation
                     <Button
                         className="browse-btn"
                         onClick={() => onSelectFolder(target, path)}
+                        aria-label={`${label} 찾아보기`}
                     >
                         찾아보기
                     </Button>
                 </div>
                 {validationItem.message && (
-                    <div className={`validation-message ${validationItem.status}`}>
+                    <div className={`validation-message ${validationItem.status}`} role="alert">
                         {validationItem.message}
                     </div>
                 )}
