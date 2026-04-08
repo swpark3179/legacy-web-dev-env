@@ -1,0 +1,3 @@
+## 2025-04-08 - Asynchronous Validation in VS Code Extension Host
+**Learning:** `child_process.spawnSync` blocks the single Node.js event loop of the VS Code extension host. This causes the entire UI (and any background tasks) to freeze while waiting for synchronous shell commands like checking Gradle or JDK versions to finish.
+**Action:** Use `child_process.spawn` wrapped in a `Promise` for shell commands that might take time. Combine independent asynchronous tasks using `Promise.all` to run them concurrently, significantly reducing total execution time and preventing UI freezes.
