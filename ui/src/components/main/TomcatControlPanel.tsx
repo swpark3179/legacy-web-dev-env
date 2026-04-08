@@ -99,7 +99,7 @@ export const TomcatControlPanel: React.FC<{ state: AppState, actions: AppActions
                         onClick={() => setIsChangedFilesOpen(true)}
                         style={{ width: '100%' }}
                     >
-                        변경파일 {`(${state.deploy.changedFiles.java.length + state.deploy.changedFiles.query.length}건)`}
+                        변경파일 {`(${state.deploy.changedFiles.java.length + state.deploy.changedFiles.query.length + state.deploy.changedFiles.config.length}건)`}
                     </Button>
                 )}
             </ButtonGroup>

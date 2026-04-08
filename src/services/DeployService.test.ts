@@ -58,6 +58,7 @@ describe('DeployService', () => {
         mockChangedFiles = {
             java: [],
             query: [],
+            config: [],
         };
 
         mockFileWatchers = [];

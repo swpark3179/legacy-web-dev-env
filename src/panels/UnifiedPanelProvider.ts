@@ -29,7 +29,7 @@ export class UnifiedPanelProvider extends WebviewProvider {
 
     private _stoppingTimeout?: NodeJS.Timeout;
     private _fileWatchers: vscode.FileSystemWatcher[] = [];
-    private _changedFiles: ChangedFiles = { java: [], query: [] };
+    private _changedFiles: ChangedFiles = { java: [], query: [], config: [] };
 
     constructor(extensionUri: vscode.Uri, context?: vscode.ExtensionContext) {
         super(extensionUri);

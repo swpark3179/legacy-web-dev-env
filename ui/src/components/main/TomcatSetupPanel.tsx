@@ -3,9 +3,16 @@ import { Panel, Button } from '../common';
 import { AppActions, AppState } from '@/hooks/useAppState';
 
 export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }> = ({ state, actions }) => {
-    const [port, setPort] = useState<number>(state.tomcat.port || 7001);
+    const [portStr, setPortStr] = useState<string>(String(state.tomcat.port || 8080));
     const isDisabled = state.tomcat.running || state.tomcat.initializing || state.build.isGradleRunning;
 
+    // 입력값 필터링 및 숫자 변환
+    const handlePortChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/[^0-9]/g, '');
+        setPortStr(value);
+    };
+
+    const port = parseInt(portStr, 10);
     // 포트 유효성 검사 (1024 ~ 65535)
     const isPortValid = Number.isInteger(port) && port >= 1024 && port <= 65535;
 
@@ -29,13 +36,11 @@ export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }
             <div className="context-root-section" style={{ marginTop: '8px' }}>
                 <label htmlFor="tomcatPortInput">port</label>
                 <input
-                    type="number"
+                    type="text"
                     id="tomcatPortInput"
-                    value={port}
-                    min={1024}
-                    max={65535}
+                    value={portStr}
                     disabled={isDisabled}
-                    onChange={(e) => setPort(parseInt(e.target.value, 10) || 7001)}
+                    onChange={handlePortChange}
                     style={{ width: '100px' }}
                 />
                 <Button
