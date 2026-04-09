@@ -188,7 +188,7 @@ export class TomcatInitService {
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
     <WatchedResource>\${catalina.base}/conf/web.xml</WatchedResource>
     <JarScanner>
-        <JarScanFilter defaultTldScan="false" />
+        <JarScanFilter defaultTldScan="true" />
     </JarScanner>
     <Resources cachingAllowed="true" cacheMaxSize="100000" />
 </Context>
