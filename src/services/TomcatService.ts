@@ -175,7 +175,12 @@ export class TomcatService {
         // tomcat context root 폴더 하위 초기화
         fs.emptyDirSync(tomcatContextRootPath);
         // tomcat 기동에 필요한 프로젝트 구성 파일 배포 (완료 후 tomcat 기동)
-        if (deployServiceFiles) await deployServiceFiles();
+        if (deployServiceFiles) {
+            const deploySuccess = await deployServiceFiles();
+            if (deploySuccess === false) {
+                throw new Error('파일 배포 실패로 인해 Tomcat 기동을 중단합니다. (Gradle 빌드 실패 등)');
+            }
+        }
         // tomcat 기동 옵션 설정
         const javaOpts = this.get_java_opts(_debugMode, _enableHotswap);
         const env = {
