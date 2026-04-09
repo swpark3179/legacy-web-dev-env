@@ -1,0 +1,1 @@
+sed -i 's/execFileSync('"'"'taskkill'"'"', \['"'"'\/PID'"'"', pid.toString(), '"'"'\/F'"'"'\], { stdio: '"'"'pipe'"'"' });/await execFileAsync('"'"'taskkill'"'"', \['"'"'\/PID'"'"', pid.toString(), '"'"'\/F'"'"'\], { stdio: '"'"'pipe'"'"' });/g' src/services/TomcatService.ts

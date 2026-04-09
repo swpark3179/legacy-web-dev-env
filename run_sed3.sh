@@ -1,0 +1,1 @@
+sed -i 's/const output = execFileSync('"'"'netstat'"'"', \['"'"'-ano'"'"'\], { encoding: '"'"'utf8'"'"' });/const { stdout } = await execFileAsync('"'"'netstat'"'"', \['"'"'-ano'"'"'\], { encoding: '"'"'utf8'"'"' });\n            const output = stdout;/g' src/services/TomcatService.ts
