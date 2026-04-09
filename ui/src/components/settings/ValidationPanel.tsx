@@ -31,7 +31,7 @@ export const ValidationPanel: React.FC<{ settings: Settings, validation: Validat
             <span className={`status-icon ${status}`} />
             <div className="validation-text">
                 <strong>{name}</strong>
-                {message && <div className={`validation-message ${status}`}>{message}</div>}
+                {message && <div className={`validation-message ${status}`} role="alert">{message}</div>}
             </div>
         </li>
     );

@@ -33,7 +33,15 @@ export const ChangedFilesModal: React.FC<{
         <div className="tree-section">
             <div
                 className="tree-header"
+                role="button"
+                tabIndex={0}
                 onClick={toggle}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggle();
+                    }
+                }}
                 style={{ display: 'flex', alignItems: 'center', padding: '4px 8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase' }}
             >
                 <span style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.1s', display: 'inline-block', marginRight: '4px', fontSize: '10px' }}>▶</span>
@@ -67,7 +75,7 @@ export const ChangedFilesModal: React.FC<{
             position={{ left: 0, top: 50 }}
         >
             {!isHotReloading && (
-                <div className="message info" style={{ marginBottom: '12px', fontSize: '12px' }}>
+                <div className="message info" role="alert" style={{ marginBottom: '12px', fontSize: '12px' }}>
                     Hot Reloading이 비활성화 상태에서 기동되어 변경 파일을 적용할 수 없습니다.
                 </div>
             )}
