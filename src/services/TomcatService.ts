@@ -2,7 +2,9 @@ import * as vscode from 'vscode';
 import type { Settings, TomcatState } from '../types';
 import path from 'path';
 import * as fs from 'fs-extra';
-import { spawn, execFileSync, type ChildProcess } from 'child_process';
+import { spawn, execFile, execFileSync, type ChildProcess } from 'child_process';
+import { promisify } from 'util';
+const execFileAsync = promisify(execFile);
 
 // Tomcat 제어 서비스
 export class TomcatService {
@@ -164,7 +166,7 @@ export class TomcatService {
             throw Error('Tomcat 초기화를 먼저 수행하세요.');
         }
         // 개발자 모드 체크
-        this._isDeveloperMode = this._checkDeveloperMode();
+        this._isDeveloperMode = await this._checkDeveloperMode();
         this._log.clear();
         this._log.show(true);
         this._log.appendLine(`[Tomcat] 개발자 모드: ${this._isDeveloperMode ? '활성' : '비활성'}`);
@@ -349,10 +351,11 @@ export class TomcatService {
     }
 
     // 사용자가 입력한 포트가 사용 중인지 확인
-    areTomcatPortsInUse(): boolean {
+    async areTomcatPortsInUse(): Promise<boolean> {
         const ports = [this._tomcatState.port];
         try {
-            const output = execFileSync('netstat', ['-ano'], { encoding: 'utf8' });
+            const { stdout } = await execFileAsync('netstat', ['-ano'], { encoding: 'utf8' });
+            const output = stdout;
             for (const port of ports) {
                 const lines = output.split(/\r?\n/).filter((l) => l.includes(`:${port}`) && l.includes('LISTENING'));
                 if (lines.length > 0) return true;
@@ -364,11 +367,12 @@ export class TomcatService {
     }
 
     // 사용자가 입력한 포트로 리스닝 중인 프로세스를 찾아 강제 종료
-    killProcessesOnTomcatPorts(): void {
+    async killProcessesOnTomcatPorts(): Promise<void> {
         const ports = [this._tomcatState.port];
         const pids = new Set<number>();
         try {
-            const output = execFileSync('netstat', ['-ano'], { encoding: 'utf8' });
+            const { stdout } = await execFileAsync('netstat', ['-ano'], { encoding: 'utf8' });
+            const output = stdout;
             for (const port of ports) {
                 const lines = output.split(/\r?\n/).filter((l) => l.includes(`:${port}`));
                 for (const line of lines) {
@@ -380,7 +384,7 @@ export class TomcatService {
             for (const pid of pids) {
                 try {
                     if (Number.isInteger(pid) && pid > 0) {
-                        execFileSync('taskkill', ['/PID', pid.toString(), '/F'], { stdio: 'pipe' });
+                        await execFileAsync('taskkill', ['/PID', pid.toString(), '/F']);
                         this._log.show(true);
                         this._log.appendLine(`[Tomcat] 포트 프로세스 종료 (PID: ${pid})`);
                     }
@@ -405,12 +409,12 @@ export class TomcatService {
     }
 
     /** Windows 개발자 모드 활성 여부를 레지스트리에서 확인 */
-    private _checkDeveloperMode(): boolean {
+    private async _checkDeveloperMode(): Promise<boolean> {
         try {
-            const output = execFileSync(
+            const { stdout: output } = await execFileAsync(
                 'reg',
                 ['query', 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock', '/v', 'AllowDevelopmentWithoutDevLicense'],
-                { encoding: 'utf8', stdio: 'pipe' }
+                { encoding: 'utf8' }
             );
             return /REG_DWORD\s+0x1/i.test(output);
         } catch {

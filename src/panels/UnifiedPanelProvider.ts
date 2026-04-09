@@ -197,7 +197,7 @@ export class UnifiedPanelProvider extends WebviewProvider {
                     this._tomcatService.killTomcatProcess();
                 } else {
                     await this._tomcatService.stopTomcat();
-                    this._tomcatService.killProcessesOnTomcatPorts();
+                    await this._tomcatService.killProcessesOnTomcatPorts();
                 }
                 this._tomcatState.starting = false;
                 this._deployService.stopFileWatcher();
@@ -210,8 +210,8 @@ export class UnifiedPanelProvider extends WebviewProvider {
                 }, 2500);
                 return Promise.resolve();
             },
-            killTomcatPorts: () => {
-                this._tomcatService.killProcessesOnTomcatPorts();
+            killTomcatPorts: async () => {
+                await this._tomcatService.killProcessesOnTomcatPorts();
                 this._tomcatState.running = false;
                 this._tomcatState.debugMode = false;
                 this._updateTomcatStatusBar();
@@ -256,7 +256,7 @@ export class UnifiedPanelProvider extends WebviewProvider {
         if (!this._tomcatState.initialized || !this._tomcatState.contextRoot) {
             this._syncContextRootFromWebXml();
         }
-        if (!this._tomcatState.running && this._tomcatService.areTomcatPortsInUse()) this._tomcatState.portsBlocked = true;
+        if (!this._tomcatState.running && await this._tomcatService.areTomcatPortsInUse()) this._tomcatState.portsBlocked = true;
         this._updateTomcatStatusBar();
         if (this._validation.allValid) this._postMessage({ type: 'navigateTo', page: 'main', validationState: this._validation });
     }
