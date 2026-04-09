@@ -241,12 +241,28 @@ export class ProjectService {
             const rtJarPath = path.join(this._extensionPath.fsPath, 'resources', 'rt.jar');
             let rtJarEntry = '';
             if(fs.existsSync(rtJarPath)) rtJarEntry = `<classpathentry kind="lib" path="${rtJarPath}"/>`;
+
+            let javaSrcPath = 'src/java';
+            if (fs.existsSync(path.join(workspacePath, 'src/main/java'))) {
+                javaSrcPath = 'src/main/java';
+            } else if (fs.existsSync(path.join(workspacePath, 'src/java'))) {
+                javaSrcPath = 'src/java';
+            }
+
+            let configEntry = '';
+            if (fs.existsSync(path.join(workspacePath, 'src/config'))) {
+                configEntry = `\n    <classpathentry kind="src" path="src/config"/>`;
+            }
+
+            let queryEntry = '';
+            if (fs.existsSync(path.join(workspacePath, 'src/query'))) {
+                queryEntry = `\n    <classpathentry kind="src" path="src/query"/>`;
+            }
+
             const classpathContent = `<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
     ${rtJarEntry}
-    <classpathentry kind="src" path="src/java"/>
-    <classpathentry kind="src" path="src/config"/>
-    <classpathentry kind="src" path="src/query"/>
+    <classpathentry kind="src" path="${javaSrcPath}"/>${configEntry}${queryEntry}
     <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
     <classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
     <classpathentry kind="output" path="target/out"/>
