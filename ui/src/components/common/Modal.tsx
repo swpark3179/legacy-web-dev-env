@@ -61,6 +61,9 @@ export const Modal: React.FC<ModalProps> = ({
         >
             <div
                 className="modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
                 style={position ? {
                     position: 'absolute',
                     top: `${position.top}px`,
@@ -70,7 +73,7 @@ export const Modal: React.FC<ModalProps> = ({
                 } : undefined}
             >
                 <div className="modal-header">
-                    <h4>{title}</h4>
+                    <h4 id="modal-title">{title}</h4>
                 </div>
                 <div className="modal-body">
                     {children}
