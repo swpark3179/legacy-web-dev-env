@@ -42,7 +42,7 @@ export class ValidationService {
     /**
      * 프로젝트 구조 검증
      */
-    validateProjectStructure(projectRoot: string): void {
+    async validateProjectStructure(projectRoot: string): Promise<void> {
         if (!projectRoot) {
             this._validation.projectValid = false;
             return;
@@ -54,7 +54,7 @@ export class ValidationService {
         }
         // web.xml에서 display-name 파싱 가능 여부 확인 (context root 필수)
         try {
-            const content = fs.readFileSync(webXmlPath, 'utf8');
+            const content = await fs.promises.readFile(webXmlPath, 'utf8');
             const match = content.match(/<display-name>\s*([\s\S]*?)\s*<\/display-name>/);
             this._validation.projectValid = !!(match && match[1] !== undefined);
         } catch {
@@ -210,7 +210,7 @@ export class ValidationService {
             let version = '';
 
             if (fs.existsSync(releaseNotes)) {
-                const content = fs.readFileSync(releaseNotes, 'utf-8');
+                const content = await fs.promises.readFile(releaseNotes, 'utf-8');
                 const versionMatch = content.match(/Apache\s+Tomcat\s+Version\s+(\d+\.\d+\.\d+)/i);
                 if (versionMatch) {
                     version = versionMatch[1];
