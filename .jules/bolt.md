@@ -3,3 +3,6 @@
 **Action:** Use `child_process.spawn` wrapped in a `Promise` for shell commands that might take time. Combine independent asynchronous tasks using `Promise.all` to run them concurrently, significantly reducing total execution time and preventing UI freezes.## 2025-04-09 - Asynchronous child_process execution
 **Learning:** Found more instances of blocking `child_process.execFileSync` calls (`netstat`, `taskkill`, `reg`) in the VS Code extension host, which can block the single Node.js event loop.
 **Action:** Replaced them with `util.promisify(execFile)` to execute system commands asynchronously without blocking the UI. Awaiting these methods ensures correct operation order without the performance penalty of synchronous calls.
+## 2025-04-10 - Asynchronous File Reading
+**Learning:** Found multiple instances of `fs.readFileSync` in the VS Code extension host (`ValidationService` and `UnifiedPanelProvider`), which blocks the single Node.js event loop during initialization and validation processes, freezing the UI.
+**Action:** Replaced synchronous reads with `await fs.promises.readFile` and updated corresponding method signatures to be asynchronous. Always avoid synchronous I/O operations in backend services.

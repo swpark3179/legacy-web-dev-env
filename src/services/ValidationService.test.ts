@@ -14,6 +14,9 @@ jest.mock('fs', () => ({
     existsSync: jest.fn(),
     statSync: jest.fn(),
     readFileSync: jest.fn(),
+    promises: {
+        readFile: jest.fn(),
+    },
 }));
 
 jest.mock('child_process', () => ({
@@ -119,41 +122,41 @@ describe('ValidationService', () => {
     });
 
     describe('validateProjectStructure', () => {
-        it('should set projectValid false if projectRoot is empty', () => {
-            validationService.validateProjectStructure('');
+        it('should set projectValid false if projectRoot is empty', async () => {
+            await validationService.validateProjectStructure('');
             expect(mockValidationState.projectValid).toBe(false);
         });
 
-        it('should set projectValid true if web.xml exists and display-name is parseable', () => {
+        it('should set projectValid true if web.xml exists and display-name is parseable', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
             (fs.statSync as jest.Mock).mockReturnValue({ isFile: () => true });
-            (fs.readFileSync as jest.Mock).mockReturnValue('<display-name>myapp</display-name>');
+            (fs.promises.readFile as jest.Mock).mockResolvedValue('<display-name>myapp</display-name>');
 
-            validationService.validateProjectStructure('/project');
+            await validationService.validateProjectStructure('/project');
             expect(mockValidationState.projectValid).toBe(true);
         });
 
-        it('should set projectValid false if web.xml does not exist', () => {
+        it('should set projectValid false if web.xml does not exist', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(false);
 
-            validationService.validateProjectStructure('/project');
+            await validationService.validateProjectStructure('/project');
             expect(mockValidationState.projectValid).toBe(false);
         });
 
-        it('should set projectValid false if web.xml is not a file', () => {
+        it('should set projectValid false if web.xml is not a file', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
             (fs.statSync as jest.Mock).mockReturnValue({ isFile: () => false });
 
-            validationService.validateProjectStructure('/project');
+            await validationService.validateProjectStructure('/project');
             expect(mockValidationState.projectValid).toBe(false);
         });
 
-        it('should set projectValid false if web.xml has no display-name', () => {
+        it('should set projectValid false if web.xml has no display-name', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
             (fs.statSync as jest.Mock).mockReturnValue({ isFile: () => true });
-            (fs.readFileSync as jest.Mock).mockReturnValue('<web-app><servlet></servlet></web-app>');
+            (fs.promises.readFile as jest.Mock).mockResolvedValue('<web-app><servlet></servlet></web-app>');
 
-            validationService.validateProjectStructure('/project');
+            await validationService.validateProjectStructure('/project');
             expect(mockValidationState.projectValid).toBe(false);
         });
     });
@@ -320,7 +323,7 @@ describe('ValidationService', () => {
 
         it('should return valid if version is 9.0', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (fs.readFileSync as jest.Mock).mockReturnValue('Apache Tomcat Version 9.0.52');
+            (fs.promises.readFile as jest.Mock).mockResolvedValue('Apache Tomcat Version 9.0.52');
 
             const result = await validationService.validateTomcat('/tomcat');
             expect(result.status).toBe('valid');
@@ -330,7 +333,7 @@ describe('ValidationService', () => {
 
         it('should return valid if version is 8.5', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (fs.readFileSync as jest.Mock).mockReturnValue('Apache Tomcat Version 8.5.70');
+            (fs.promises.readFile as jest.Mock).mockResolvedValue('Apache Tomcat Version 8.5.70');
 
             const result = await validationService.validateTomcat('/tomcat');
             expect(result.status).toBe('valid');
@@ -340,7 +343,7 @@ describe('ValidationService', () => {
 
         it('should return invalid if version is not 9.0 or 8.5', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (fs.readFileSync as jest.Mock).mockReturnValue('Apache Tomcat Version 10.0.0');
+            (fs.promises.readFile as jest.Mock).mockResolvedValue('Apache Tomcat Version 10.0.0');
 
             const result = await validationService.validateTomcat('/tomcat');
             expect(result.status).toBe('invalid');
@@ -349,7 +352,7 @@ describe('ValidationService', () => {
 
         it('should handle missing version in RELEASE-NOTES', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (fs.readFileSync as jest.Mock).mockReturnValue('Some other content');
+            (fs.promises.readFile as jest.Mock).mockResolvedValue('Some other content');
 
             const result = await validationService.validateTomcat('/tomcat');
             expect(result.status).toBe('invalid');
@@ -367,7 +370,7 @@ describe('ValidationService', () => {
 
         it('should handle fs.readFileSync exception', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
-            (fs.readFileSync as jest.Mock).mockImplementation(() => {
+            (fs.promises.readFile as jest.Mock).mockImplementation(() => {
                 throw new Error('read error');
             });
 

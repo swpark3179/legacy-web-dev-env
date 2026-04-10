@@ -272,11 +272,11 @@ export class UnifiedPanelProvider extends WebviewProvider {
             return;
         }
         this._validation.isFirstLoaded = true;
-        this._validationService.validateProjectStructure(this._settingsService.projectRoot);
+        await this._validationService.validateProjectStructure(this._settingsService.projectRoot);
         if (this._settingsService.loadSavedSettings()) this._validationService.setAsValidated(this._settingsService.settings);
-        this._syncStateFromServerXml();
+        await this._syncStateFromServerXml();
         if (!this._tomcatState.initialized || !this._tomcatState.contextRoot) {
-            this._syncContextRootFromWebXml();
+            await this._syncContextRootFromWebXml();
         }
         if (!this._tomcatState.running && await this._tomcatService.areTomcatPortsInUse()) this._tomcatState.portsBlocked = true;
         this._updateTomcatStatusBar();
@@ -284,12 +284,12 @@ export class UnifiedPanelProvider extends WebviewProvider {
     }
 
     // server.xml에서 contextRoot와 port를 읽어 _tomcatState에 반영
-    private _syncStateFromServerXml(): void {
+    private async _syncStateFromServerXml(): Promise<void> {
         const tomcatDir = path.join(this._settings.projectRoot, '.tomcat');
         const serverXmlPath = path.join(tomcatDir, 'conf', 'server.xml');
         if (!fs.existsSync(tomcatDir) || !fs.existsSync(serverXmlPath)) return;
         try {
-            const content = fs.readFileSync(serverXmlPath, 'utf8');
+            const content = await fs.promises.readFile(serverXmlPath, 'utf8');
             // context root 읽기
             const contextMatch = content.match(/<Context\b[^>]*\spath\s*=\s*["']([^"']*)["']/);
             if (contextMatch && contextMatch[1]) {
@@ -307,11 +307,11 @@ export class UnifiedPanelProvider extends WebviewProvider {
     }
 
     // 프로젝트 web.xml의 <display-name>을 읽어 _tomcatState.contextRoot에 반영 (server.xml 미반영 시 fallback)
-    private _syncContextRootFromWebXml(): void {
+    private async _syncContextRootFromWebXml(): Promise<void> {
         const webXmlPath = path.join(this._settings.projectRoot, 'src', 'webapp', 'WEB-INF', 'web.xml');
         if (!fs.existsSync(webXmlPath)) return;
         try {
-            const content = fs.readFileSync(webXmlPath, 'utf8');
+            const content = await fs.promises.readFile(webXmlPath, 'utf8');
             const match = content.match(/<display-name>\s*([\s\S]*?)\s*<\/display-name>/);
             if (match && match[1] !== undefined) {
                 this._tomcatState.contextRoot = match[1].trim();
