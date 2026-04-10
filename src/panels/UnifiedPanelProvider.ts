@@ -165,7 +165,18 @@ export class UnifiedPanelProvider extends WebviewProvider {
                     this._tomcatState.starting = false;
                     this._updateTomcatStatusBar();
                     this._sendTomcatState();
-                }, () => this._tomcatInitService.deployServiceFiles(this._tomcatState.contextRoot, this._tomcatService.isDeveloperMode));
+                }, () => {
+                    return new Promise<boolean>((resolve) => {
+                        this._gradleService.buildClassesWithCallback(async (success) => {
+                            if (success) {
+                                const deploySuccess = await this._tomcatInitService.deployServiceFiles(this._tomcatState.contextRoot, this._tomcatService.isDeveloperMode);
+                                resolve(deploySuccess);
+                            } else {
+                                resolve(false);
+                            }
+                        });
+                    });
+                });
                 return Promise.resolve();
             },
             debugTomcat: async (enableHotswap) => {
@@ -183,7 +194,18 @@ export class UnifiedPanelProvider extends WebviewProvider {
                         this._updateTomcatStatusBar();
                         this._sendTomcatState();
                     },
-                    () => this._tomcatInitService.deployServiceFiles(this._tomcatState.contextRoot, this._tomcatService.isDeveloperMode)
+                    () => {
+                        return new Promise<boolean>((resolve) => {
+                            this._gradleService.buildClassesWithCallback(async (success) => {
+                                if (success) {
+                                    const deploySuccess = await this._tomcatInitService.deployServiceFiles(this._tomcatState.contextRoot, this._tomcatService.isDeveloperMode);
+                                    resolve(deploySuccess);
+                                } else {
+                                    resolve(false);
+                                }
+                            });
+                        });
+                    }
                 );
             },
             stopTomcat: async () => {
