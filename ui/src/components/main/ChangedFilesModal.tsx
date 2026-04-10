@@ -42,13 +42,15 @@ export const ChangedFilesModal: React.FC<{
                         toggle();
                     }
                 }}
+                aria-expanded={isOpen}
+                aria-controls={`tree-content-${label}`}
                 style={{ display: 'flex', alignItems: 'center', padding: '4px 8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '11px', textTransform: 'uppercase' }}
             >
-                <span style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.1s', display: 'inline-block', marginRight: '4px', fontSize: '10px' }}>▶</span>
+                <span aria-hidden="true" style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.1s', display: 'inline-block', marginRight: '4px', fontSize: '10px' }}>▶</span>
                 {label} ({files.length})
             </div>
             {isOpen && (
-                <div className="tree-content">
+                <div id={`tree-content-${label}`} className="tree-content">
                     {files.length === 0 ? (
                         <div style={{ padding: '4px 8px 4px 24px', fontStyle: 'italic', color: 'var(--vscode-descriptionForeground)' }}>변경된 파일이 없습니다.</div>
                     ) : (
