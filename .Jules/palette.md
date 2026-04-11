@@ -4,3 +4,6 @@
 ## 2023-10-27 - Webview Mocking
 **Learning:** When visually verifying VS Code Webview frontend changes via Playwright, the UI may not render correctly without accurately mocking the asynchronous state updates sent via `window.postMessage` from the extension backend.
 **Action:** Include a `page.evaluate()` block to dispatch a mock `STATE_UPDATE` message when creating Playwright scripts for frontend verification.
+## 2026-04-11 - Explicit label association and disabled state tooltips
+**Learning:** Found instances where input elements like checkboxes lacked explicit ID to label associations, which hinders screen reader support. Additionally, disabled complex functionality (like Hot Reloading without DCEVM) lacked context, leaving users unsure why they couldn't use it.
+**Action:** Always associate labels with inputs using `htmlFor` and `id`, and provide a `title` or tooltip on container elements for disabled inputs to explain to users why it is disabled.
