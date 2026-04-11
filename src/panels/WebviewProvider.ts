@@ -20,13 +20,12 @@ export abstract class WebviewProvider implements vscode.WebviewViewProvider {
     /**
      * React 빌드된 HTML을 가져옴
      */
-    protected _getHtmlForWebview(webview: vscode.Webview): string {
+    protected async _getHtmlForWebview(webview: vscode.Webview): Promise<string> {
         const distPath = path.join(this._extensionUri.fsPath, 'webview-dist');
         const indexPath = path.join(distPath, 'index.html');
 
-        // 빌드된 파일이 있으면 사용
-        if (fs.existsSync(indexPath)) {
-            let html = fs.readFileSync(indexPath, 'utf-8');
+        try {
+            let html = await fs.promises.readFile(indexPath, 'utf-8');
 
             // asset 경로를 webview URI로 변환
             const assetsUri = webview.asWebviewUri(
@@ -51,10 +50,11 @@ export abstract class WebviewProvider implements vscode.WebviewViewProvider {
             html = html.replace(/<script /g, `<script nonce="${nonce}" `);
 
             return html;
+        } catch (error) {
+            // 파일이 없거나 읽을 수 없는 경우
+            // 빌드 파일이 없으면 개발용 메시지 표시
+            return this._getFallbackHtml(webview);
         }
-
-        // 빌드 파일이 없으면 개발용 메시지 표시
-        return this._getFallbackHtml(webview);
     }
 
     /**

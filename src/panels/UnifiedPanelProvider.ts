@@ -105,7 +105,9 @@ export class UnifiedPanelProvider extends WebviewProvider {
             ]
         };
 
-        webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+        this._getHtmlForWebview(webviewView.webview).then((html) => {
+            webviewView.webview.html = html;
+        });
 
         webviewView.webview.onDidReceiveMessage(async (data: MessageFromWebview) => {
             await (data => handleWebviewMessage(data, this._getActionEngine()))(data);

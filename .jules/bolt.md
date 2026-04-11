@@ -6,3 +6,6 @@
 ## 2025-04-10 - Asynchronous File Reading
 **Learning:** Found multiple instances of `fs.readFileSync` in the VS Code extension host (`ValidationService` and `UnifiedPanelProvider`), which blocks the single Node.js event loop during initialization and validation processes, freezing the UI.
 **Action:** Replaced synchronous reads with `await fs.promises.readFile` and updated corresponding method signatures to be asynchronous. Always avoid synchronous I/O operations in backend services.
+## 2025-04-11 - Asynchronous HTML Loading for Webview
+**Learning:** Discovered a performance bottleneck where `fs.readFileSync` and `fs.existsSync` were blocking the Node.js event loop during the loading of the Webview HTML. While this might not seem significant, the extension host shouldn't block its main thread for I/O operations.
+**Action:** Replaced the synchronous file system operations with asynchronous `await fs.promises.readFile()` in `src/panels/WebviewProvider.ts` to improve loading performance and prevent UI freezing.
