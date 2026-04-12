@@ -27,8 +27,9 @@ export const WorkspaceSettingsPanel: React.FC<{onApplySettings: (options: Projec
                     </div>
                 </div>
 
-                <label className="checkbox-option">
+                <label className="checkbox-option" htmlFor="hideSimpleFolder">
                     <input
+                        id="hideSimpleFolder"
                         type="checkbox"
                         checked={options.hideSimpleFolder}
                         onChange={(e) => {
@@ -46,8 +47,9 @@ export const WorkspaceSettingsPanel: React.FC<{onApplySettings: (options: Projec
                     </div>
                 </label>
 
-                <label className="checkbox-option sub-option">
+                <label className="checkbox-option sub-option" htmlFor="hideExtFolder">
                     <input
+                        id="hideExtFolder"
                         type="checkbox"
                         checked={options.hideExtFolder}
                         onChange={(e) => {
@@ -64,8 +66,9 @@ export const WorkspaceSettingsPanel: React.FC<{onApplySettings: (options: Projec
                     </div>
                 </label>
 
-                <label className="checkbox-option">
+                <label className="checkbox-option" htmlFor="initProjectFile">
                     <input
+                        id="initProjectFile"
                         type="checkbox"
                         checked={options.initProjectFile}
                         onChange={handleChange('initProjectFile')}

@@ -21,6 +21,14 @@ export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }
         actions.tomcat.initTomcat(state.tomcat.contextRoot, port);
     };
 
+    const getDisabledReason = () => {
+        if (!isPortValid) return '포트 번호는 1024에서 65535 사이여야 합니다.';
+        if (state.tomcat.running) return 'Tomcat이 이미 실행 중입니다.';
+        if (state.tomcat.initializing) return 'Tomcat 초기화 중입니다.';
+        if (state.build.isGradleRunning) return '빌드 실행 중입니다.';
+        return 'Tomcat 초기화';
+    };
+
     return (
         <Panel title="Tomcat 환경 설정">
             <div className="context-root-section">
@@ -47,7 +55,7 @@ export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }
                     variant="icon"
                     disabled={isDisabled || !isPortValid}
                     onClick={handleInit}
-                    title="Tomcat 초기화"
+                    title={getDisabledReason()}
                     aria-label="Tomcat 초기화"
                 >
                     <span className="icon">⚙</span>
