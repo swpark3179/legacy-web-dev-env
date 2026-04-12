@@ -220,7 +220,7 @@ export class ProjectService {
 `;
 
             // Write to .project file
-            fs.writeFileSync(projectPath, projectContent, 'utf8');
+            await fs.promises.writeFile(projectPath, projectContent, 'utf8');
             this._log.appendLine(`.project 파일이 생성되었습니다: ${projectPath}`);
         } catch (error) {
             this._log.appendLine(`.project 파일 생성 실패: ${error}`);
@@ -269,8 +269,8 @@ export class ProjectService {
     <classpathentry kind="lib" path="src/lib/**/*.jar"/>
 </classpath>
 `;
-            fs.writeFileSync(classpathPath, classpathContent, 'utf8');
-            this.updateClassPathFile();
+            await fs.promises.writeFile(classpathPath, classpathContent, 'utf8');
+            await this.updateClassPathFile();
             this._log.appendLine(`.classpath 파일이 생성되었습니다: ${classpathPath}`);
 
         } catch (error) {
@@ -288,7 +288,7 @@ export class ProjectService {
             }
             const workspacePath = workspaceFolders[0].uri.fsPath;
             const classpathPath = path.join(workspacePath, '.classpath');
-            let classpathContent = fs.readFileSync(classpathPath, 'utf8');
+            let classpathContent = await fs.promises.readFile(classpathPath, 'utf8');
 
             // 1. kind="lib" classpathentry 중 path 최종경로가 rt.jar 인 것만 유지, 나머지는 태그 삭제
             classpathContent = classpathContent.replace(/<classpathentry[^>]*\/>\s*/g, (match) => {
@@ -304,18 +304,19 @@ export class ProjectService {
             const srcLibDir = path.join(workspacePath, 'src', 'lib');
             const jarFiles: string[] = [];
             if (fs.existsSync(srcLibDir)) {
-                const collectJars = (dir: string): void => {
-                    const entries = fs.readdirSync(dir, { withFileTypes: true });
-                    for (const ent of entries) {
+                const collectJars = async (dir: string): Promise<void> => {
+                    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+                    const tasks = entries.map(async (ent) => {
                         const fullPath = path.join(dir, ent.name);
                         if (ent.isDirectory()) {
-                            collectJars(fullPath);
+                            await collectJars(fullPath);
                         } else if (ent.name.toLowerCase().endsWith('.jar')) {
                             jarFiles.push(fullPath);
                         }
-                    }
+                    });
+                    await Promise.all(tasks);
                 };
-                collectJars(srcLibDir);
+                await collectJars(srcLibDir);
             }
 
             const libEntries = jarFiles.map((jarPath) => {
@@ -327,7 +328,7 @@ export class ProjectService {
                 classpathContent = classpathContent.replace('</classpath>', `\n${libEntries}\n</classpath>`);
             }
 
-            fs.writeFileSync(classpathPath, classpathContent, 'utf8');
+            await fs.promises.writeFile(classpathPath, classpathContent, 'utf8');
             this._log.appendLine('lib 파일 갱신 완료');
         } catch (error) {
             this._log.appendLine(`.classpath 파일 갱신 실패: ${error}`);
