@@ -11,13 +11,19 @@ export const BuildPanel: React.FC<{
 }> = ({ onBuildClasses, onCleanProject, onStopGradle, onApplyLibrary, state }) => {
     const { isGradleRunning } = state.build;
 
+    const getDisabledReason = () => {
+        if (isGradleRunning) return '빌드 실행 중입니다.';
+        if (state.tomcat.initializing) return 'Tomcat 초기화 중입니다.';
+        return undefined;
+    };
+
     const headerRight = (
         <Button
             variant="secondary"
             className="header-btn"
             onClick={onApplyLibrary}
             disabled={isGradleRunning || state.tomcat.initializing}
-            title="라이브러리 적용"
+            title={getDisabledReason() || "라이브러리 적용"}
         >
             라이브러리 적용
         </Button>
@@ -30,6 +36,7 @@ export const BuildPanel: React.FC<{
                     <Button
                         onClick={onBuildClasses}
                         disabled={isGradleRunning || state.tomcat.initializing}
+                        title={getDisabledReason()}
                         style={{ width: 'calc(50% - 5px)' }}
                     >
                         빌드(classes)
@@ -38,6 +45,7 @@ export const BuildPanel: React.FC<{
                         variant="secondary"
                         onClick={onCleanProject}
                         disabled={isGradleRunning || state.tomcat.initializing}
+                        title={getDisabledReason()}
                         style={{ width: 'calc(50% - 5px)' }}
                     >
                         초기화(clean)

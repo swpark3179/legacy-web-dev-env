@@ -27,6 +27,22 @@ export const TomcatControlPanel: React.FC<{ state: AppState, actions: AppActions
 
     const isTransitioning = state.tomcat.starting || state.tomcat.stopping;
 
+    const getDisabledReason = () => {
+        if (state.tomcat.running) return 'Tomcat이 이미 실행 중입니다.';
+        if (state.tomcat.initializing) return 'Tomcat 초기화 중입니다.';
+        if (state.build.isGradleRunning) return '빌드 실행 중입니다.';
+        if (isTransitioning) return 'Tomcat 상태 변경 중입니다.';
+        return undefined;
+    };
+
+    const getStopDisabledReason = () => {
+        if (!state.tomcat.running && !state.tomcat.stopping) return 'Tomcat이 실행 중이 아닙니다.';
+        if (state.tomcat.initializing) return 'Tomcat 초기화 중입니다.';
+        if (state.build.isGradleRunning) return '빌드 실행 중입니다.';
+        if (state.tomcat.stopping) return 'Tomcat이 이미 중지 중입니다.';
+        return undefined;
+    };
+
     if (state.tomcat.portsBlocked) {
         return (
             <Panel>
@@ -74,6 +90,7 @@ export const TomcatControlPanel: React.FC<{ state: AppState, actions: AppActions
                 <Button
                     onClick={() => actions.tomcat.startTomcat(state.tomcat.isHotReloadMode && state.validation.jdk_has_dcevm)}
                     disabled={state.tomcat.running || state.tomcat.initializing || state.build.isGradleRunning || isTransitioning}
+                    title={getDisabledReason()}
                     style={{ width: 'calc(33% - 5px)' }}
                 >
                     시작
@@ -81,6 +98,7 @@ export const TomcatControlPanel: React.FC<{ state: AppState, actions: AppActions
                 <Button
                     onClick={() => actions.tomcat.debugTomcat(state.tomcat.isHotReloadMode && state.validation.jdk_has_dcevm)}
                     disabled={state.tomcat.running || state.tomcat.initializing || state.build.isGradleRunning || isTransitioning}
+                    title={getDisabledReason()}
                     style={{ width: 'calc(33% - 5px)' }}
                 >
                     디버그
@@ -89,6 +107,7 @@ export const TomcatControlPanel: React.FC<{ state: AppState, actions: AppActions
                     variant={state.tomcat.running ? 'danger' : 'secondary'}
                     onClick={actions.tomcat.stopTomcat}
                     disabled={(!state.tomcat.running && !state.tomcat.stopping) || state.tomcat.initializing || state.build.isGradleRunning || state.tomcat.stopping}
+                    title={getStopDisabledReason()}
                     style={{ width: 'calc(33% - 5px)' }}
                 >
                     중지
