@@ -62,6 +62,7 @@ export const ValidationPanel: React.FC<{ settings: Settings, validation: Validat
                 <Button
                     onClick={onValidateAll}
                     disabled={!canValidate || validation.isValidating}
+                    title={!canValidate ? "모든 경로를 설정해야 검증할 수 있습니다." : (validation.isValidating ? "검증이 진행 중입니다." : undefined)}
                 >
                     {validation.isValidating ? '검증 중...' : '전체 검증'}
                 </Button>

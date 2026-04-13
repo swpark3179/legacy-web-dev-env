@@ -17,7 +17,7 @@ export const BuildPanel: React.FC<{
             className="header-btn"
             onClick={onApplyLibrary}
             disabled={isGradleRunning || state.tomcat.initializing}
-            title="라이브러리 적용"
+            title={isGradleRunning || state.tomcat.initializing ? "빌드 중이거나 Tomcat 초기화 중에는 사용할 수 없습니다." : "라이브러리 적용"}
         >
             라이브러리 적용
         </Button>
@@ -30,6 +30,7 @@ export const BuildPanel: React.FC<{
                     <Button
                         onClick={onBuildClasses}
                         disabled={isGradleRunning || state.tomcat.initializing}
+                        title={isGradleRunning || state.tomcat.initializing ? "빌드 중이거나 Tomcat 초기화 중에는 사용할 수 없습니다." : undefined}
                         style={{ width: 'calc(50% - 5px)' }}
                     >
                         빌드(classes)
@@ -38,6 +39,7 @@ export const BuildPanel: React.FC<{
                         variant="secondary"
                         onClick={onCleanProject}
                         disabled={isGradleRunning || state.tomcat.initializing}
+                        title={isGradleRunning || state.tomcat.initializing ? "빌드 중이거나 Tomcat 초기화 중에는 사용할 수 없습니다." : undefined}
                         style={{ width: 'calc(50% - 5px)' }}
                     >
                         초기화(clean)
