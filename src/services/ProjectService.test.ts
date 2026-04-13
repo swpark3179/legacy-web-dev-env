@@ -31,6 +31,12 @@ jest.mock('fs', () => ({
     mkdirSync: jest.fn(),
     readFileSync: jest.fn(),
     writeFileSync: jest.fn(),
+    promises: {
+        readFile: jest.fn(),
+        writeFile: jest.fn(),
+        readdir: jest.fn(),
+        mkdir: jest.fn()
+    }
 }));
 
 jest.mock('json5', () => ({
@@ -110,7 +116,7 @@ describe('ProjectService', () => {
             expect(vscodeMock.window.showInformationMessage).toHaveBeenCalledWith('프로젝트 설정 적용 완료');
         });
 
-        it('should handle fs.writeFileSync error gracefully when writing .project file (createProjectFile)', async () => {
+        it('should handle fs.promises.writeFile error gracefully when writing .project file (createProjectFile)', async () => {
             const fsMock = require('fs');
 
             // Set up mock so .project / .classpath don't exist
@@ -118,7 +124,7 @@ describe('ProjectService', () => {
 
             // Force an error specifically when writing .project
             const testError = new Error('Permission denied');
-            fsMock.writeFileSync.mockImplementation((path: string) => {
+            fsMock.promises.writeFile.mockImplementation(async (path: string) => {
                 if (path.includes('.project')) {
                     throw testError;
                 }

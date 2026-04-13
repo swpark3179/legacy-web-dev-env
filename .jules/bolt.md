@@ -9,3 +9,6 @@
 ## 2025-04-11 - Asynchronous HTML Loading for Webview
 **Learning:** Discovered a performance bottleneck where `fs.readFileSync` and `fs.existsSync` were blocking the Node.js event loop during the loading of the Webview HTML. While this might not seem significant, the extension host shouldn't block its main thread for I/O operations.
 **Action:** Replaced the synchronous file system operations with asynchronous `await fs.promises.readFile()` in `src/panels/WebviewProvider.ts` to improve loading performance and prevent UI freezing.
+## 2025-04-12 - Asynchronous File IO in ProjectService
+**Learning:** Found multiple blocking fs operations like fs.writeFileSync, fs.readFileSync, and fs.readdirSync in ProjectService.ts. These are used during project initialization and were blocking the extension host's event loop, preventing UI updates and making the extension unresponsive.
+**Action:** Refactored applyGitConfig, applyGradleProperties, createProjectFile, createClassPathFile, and updateClassPathFile to use their asynchronous equivalents from fs.promises. Wrapped readdir operations in an async Promise.all mapping to concurrently traverse directories.
