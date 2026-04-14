@@ -5,6 +5,12 @@ import cpy from 'cpy';
 import { Settings, TomcatState } from '../types';
 import { execFileSync } from 'child_process';
 
+interface CpyProgressEvent {
+    percent: number;
+    totalFiles: number;
+    completedFiles: number;
+}
+
 // Tomcat 초기화 서비스
 export class TomcatInitService {
     private _log: vscode.OutputChannel;
@@ -72,9 +78,10 @@ export class TomcatInitService {
                 this._log.appendLine(`폴더 비우기 시도... (${targetPath})`);
                 await fs.emptyDir(targetPath);
                 return;
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const isRetryable = error instanceof Error && 'code' in error && (error.code === 'EBUSY' || error.code === 'EPERM');
                 if (attempt > maxRetries) throw error;
-                if (error.code === 'EBUSY' || error.code === 'EPERM') {
+                if (isRetryable) {
                     this._log.appendLine(`[EBUSY 감지] 파일이 사용 중입니다. 2초 뒤 재시도합니다... (${attempt}/${maxRetries})`);
                     await wait(2000);
                 }
@@ -97,7 +104,7 @@ export class TomcatInitService {
                 cwd: `${src}`,
                 overwrite: true,
                 concurrency: 300,
-                onProgress: (event: any) => {
+                onProgress: (event: CpyProgressEvent) => {
                     const currentPercentage = Math.round(event.percent * 100);
                     const diff = currentPercentage - lastPercentage;
                     lastPercentage = currentPercentage;
