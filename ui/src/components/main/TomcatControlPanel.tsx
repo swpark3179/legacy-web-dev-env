@@ -67,7 +67,11 @@ export const TomcatControlPanel: React.FC<{ state: AppState, actions: AppActions
                 <div className="tomcat-header-left">
                     <h3>Tomcat 서버 제어</h3>
                 </div>
-                <div className={`status ${state.tomcat.running && !isTransitioning ? 'status-running' : ''}`}>
+                <div
+                    className={`status ${state.tomcat.running && !isTransitioning ? 'status-running' : ''}`}
+                    aria-live="polite"
+                    aria-atomic="true"
+                >
                     <StatusIcon status={getStatusIconStatus()} />
                     <span>{getStatusText()}</span>
                 </div>
