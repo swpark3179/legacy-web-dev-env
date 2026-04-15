@@ -63,7 +63,7 @@ export class DeployService {
     }
 
     // 파일 변경 핸들러
-    private _fileChangedHandler(uri: vscode.Uri, _postMessage: (message: unknown) => void, category: string): void {
+    private async _fileChangedHandler(uri: vscode.Uri, _postMessage: (message: unknown) => void, category: string): Promise<void> {
         const normalizedPath = uri.fsPath.replace(/\\/g, '/');
         if (normalizedPath.endsWith('.git')) return;
 
@@ -72,9 +72,19 @@ export class DeployService {
             const relativePath = normalizedPath.replace(`${this._settings.projectRoot.replace(/\\/g, '/')}/src/webapp/`, '');
             const destPath = path.join(this._tomcatState.deployPath, relativePath);
             const destDir = path.dirname(destPath);
-            if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
-            if (fs.existsSync(normalizedPath)) {
-                fs.copyFileSync(normalizedPath, destPath);
+            try {
+                await fs.promises.mkdir(destDir, { recursive: true });
+                try {
+                    await fs.promises.access(normalizedPath, fs.constants.F_OK);
+                    await fs.promises.copyFile(normalizedPath, destPath);
+                    return;
+                } catch (accessErr) {
+                    // Source file might have been deleted right after change event, ignore
+                    return;
+                }
+            } catch (err) {
+                const error = err as Error;
+                this._log.appendLine(`[FileWatcher] 정적 파일 복사 실패: ${normalizedPath} -> ${destPath} (${error.message})`);
                 return;
             }
         }

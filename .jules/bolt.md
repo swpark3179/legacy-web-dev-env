@@ -12,3 +12,6 @@
 ## 2025-04-12 - Asynchronous File IO in ProjectService
 **Learning:** Found multiple blocking fs operations like fs.writeFileSync, fs.readFileSync, and fs.readdirSync in ProjectService.ts. These are used during project initialization and were blocking the extension host's event loop, preventing UI updates and making the extension unresponsive.
 **Action:** Refactored applyGitConfig, applyGradleProperties, createProjectFile, createClassPathFile, and updateClassPathFile to use their asynchronous equivalents from fs.promises. Wrapped readdir operations in an async Promise.all mapping to concurrently traverse directories.
+## 2024-04-14 - DeployService 비동기 I/O 최적화
+**Learning:** VS Code 확장 프로그램의 파일 감지 핸들러에서 동기식 I/O(Sync)를 사용하면 Node.js 이벤트 루프가 차단되어 UI 응답성이 저하될 수 있음.
+**Action:** `fs.mkdirSync` 및 `fs.copyFileSync`를 `fs.promises` 비동기 API로 교체하고, `fs.existsSync` 대신 `fs.promises.access`를 사용하여 완전한 비동기 흐름을 구현함.
