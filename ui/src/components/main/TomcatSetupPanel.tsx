@@ -14,7 +14,7 @@ export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }
 
     const port = parseInt(portStr, 10);
     // 포트 유효성 검사 (1024 ~ 65535)
-    const isPortValid = Number.isInteger(port) && port >= 1024 && port <= 65535;
+    const isPortValid = portStr === '' ? false : Number.isInteger(port) && port >= 1024 && port <= 65535;
 
     const handleInit = () => {
         if (!isPortValid) return;
@@ -49,7 +49,9 @@ export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }
                     value={portStr}
                     disabled={isDisabled}
                     onChange={handlePortChange}
-                    style={{ width: '100px' }}
+                    style={{ width: '100px', borderColor: !isPortValid ? 'var(--vscode-testing-iconFailed, #f14c4c)' : undefined }}
+                    aria-invalid={!isPortValid}
+                    aria-describedby={!isPortValid ? "port-error-msg" : undefined}
                 />
                 <Button
                     variant="icon"
@@ -61,6 +63,11 @@ export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }
                     <span className="icon">⚙</span>
                 </Button>
             </div>
+            {!isPortValid && (
+                <div id="port-error-msg" className="validation-message invalid" role="alert" style={{ marginLeft: '45px', marginTop: '4px' }}>
+                    포트 번호는 1024~65535 사이여야 합니다.
+                </div>
+            )}
         </Panel>
     );
 };
