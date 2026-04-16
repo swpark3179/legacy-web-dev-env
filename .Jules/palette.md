@@ -7,3 +7,6 @@
 ## 2026-04-11 - Explicit label association and disabled state tooltips
 **Learning:** Found instances where input elements like checkboxes lacked explicit ID to label associations, which hinders screen reader support. Additionally, disabled complex functionality (like Hot Reloading without DCEVM) lacked context, leaving users unsure why they couldn't use it.
 **Action:** Always associate labels with inputs using `htmlFor` and `id`, and provide a `title` or tooltip on container elements for disabled inputs to explain to users why it is disabled.
+## 2024-05-18 - Input error state accessibility
+**Learning:** Found an input field where the only feedback for an invalid value was a disabled submit button. This is confusing for users and completely inaccessible for screen readers.
+**Action:** When adding validation to input fields, always provide an inline validation message with `role="alert"`, and link it to the input using `aria-invalid` and `aria-describedby` to ensure screen reader compatibility.
