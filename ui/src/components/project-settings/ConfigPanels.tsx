@@ -13,7 +13,7 @@ export const HomeSettingsPanel: React.FC<homeSettingsPanelProps> = ({ onSetupHom
             </p>
             <div className="settings-options">
                 <div className="option-item always-applied">
-                    <span className="option-icon">✓</span>
+                    <span className="option-icon" aria-hidden="true">✓</span>
                     <div className="option-content">
                         <span className="option-label">프록시 설정</span>
                         <span className="option-desc">
