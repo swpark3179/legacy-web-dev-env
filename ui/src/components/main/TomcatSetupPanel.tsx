@@ -60,7 +60,7 @@ export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }
                     title={getDisabledReason()}
                     aria-label="Tomcat 초기화"
                 >
-                    <span className="icon">⚙</span>
+                    <span className="icon" aria-hidden="true">⚙</span>
                 </Button>
             </div>
             {!isPortValid && (

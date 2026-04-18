@@ -766,6 +766,11 @@ button.danger-btn:hover {
 }
 
 /* Tree View Styles */
+.tree-header:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
+}
+
 .tree-header:hover {
   background-color: var(--vscode-list-hoverBackground);
 }

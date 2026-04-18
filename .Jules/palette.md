@@ -10,3 +10,6 @@
 ## 2024-05-18 - Input error state accessibility
 **Learning:** Found an input field where the only feedback for an invalid value was a disabled submit button. This is confusing for users and completely inaccessible for screen readers.
 **Action:** When adding validation to input fields, always provide an inline validation message with `role="alert"`, and link it to the input using `aria-invalid` and `aria-describedby` to ensure screen reader compatibility.
+## 2025-04-18 - Missing focus visibility on custom tree headers
+**Learning:** Custom interactive elements (e.g., custom tree headers using `role="button"` and `tabIndex={0}`) in VSCode Webviews frequently miss native focus rings despite having hover states.
+**Action:** When implementing custom `role="button"` elements in VSCode Webviews, always explicitly add `:focus-visible` styling using `--vscode-focusBorder` to ensure keyboard accessibility.
