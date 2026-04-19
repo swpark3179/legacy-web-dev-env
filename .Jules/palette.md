@@ -10,3 +10,6 @@
 ## 2024-05-18 - Input error state accessibility
 **Learning:** Found an input field where the only feedback for an invalid value was a disabled submit button. This is confusing for users and completely inaccessible for screen readers.
 **Action:** When adding validation to input fields, always provide an inline validation message with `role="alert"`, and link it to the input using `aria-invalid` and `aria-describedby` to ensure screen reader compatibility.
+## 2026-04-19 - Interactive focus states and context for disabled controls
+**Learning:** Found instances where custom interactive UI components (like tree toggles) lacked `:focus-visible` states, and disabled complex controls lacked context on why they were disabled (e.g., Hot Reload disabled due to Tomcat running).
+**Action:** Always add `:focus-visible` styling to custom interactive elements for keyboard accessibility, and ensure disabled controls clearly communicate why they are disabled using `title` tooltips.

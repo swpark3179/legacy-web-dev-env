@@ -77,7 +77,7 @@ export const TomcatControlPanel: React.FC<{ state: AppState, actions: AppActions
                 </div>
             </div>
 
-            <div className="hot-reload-section" title={!state.validation.jdk_has_dcevm ? "DCEVM이 설치된 JDK가 필요합니다." : ""}>
+            <div className="hot-reload-section" title={state.tomcat.running ? "Tomcat이 실행 중일 때는 변경할 수 없습니다." : (!state.validation.jdk_has_dcevm ? "DCEVM이 설치된 JDK가 필요합니다." : "")}>
                 <label className="checkbox-label" htmlFor="hot-reload-checkbox">
                     <input
                         id="hot-reload-checkbox"
