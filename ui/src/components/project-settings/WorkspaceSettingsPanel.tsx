@@ -21,7 +21,7 @@ export const WorkspaceSettingsPanel: React.FC<{onApplySettings: (options: Projec
 
             <div className="settings-options">
                 <div className="option-item always-applied">
-                    <span className="option-icon">✓</span>
+                    <span className="option-icon" aria-hidden="true">✓</span>
                     <div className="option-content">
                         <span className="option-label">Gradle 및 JDK 설정 적용</span>
                     </div>
@@ -32,6 +32,7 @@ export const WorkspaceSettingsPanel: React.FC<{onApplySettings: (options: Projec
                         id="hideSimpleFolder"
                         type="checkbox"
                         checked={options.hideSimpleFolder}
+                        aria-describedby="hideSimpleFolder-desc"
                         onChange={(e) => {
                             const checked = e.target.checked;
                             setOptions((prev) => ({
@@ -43,7 +44,7 @@ export const WorkspaceSettingsPanel: React.FC<{onApplySettings: (options: Projec
                     />
                     <div className="option-content">
                         <span className="option-label">기본 파일 숨기기</span>
-                        <span className="option-desc">out, bin, .idea, .gradle 숨김</span>
+                        <span id="hideSimpleFolder-desc" className="option-desc">out, bin, .idea, .gradle 숨김</span>
                     </div>
                 </label>
 
@@ -71,11 +72,12 @@ export const WorkspaceSettingsPanel: React.FC<{onApplySettings: (options: Projec
                         id="initProjectFile"
                         type="checkbox"
                         checked={options.initProjectFile}
+                        aria-describedby="initProjectFile-desc"
                         onChange={handleChange('initProjectFile')}
                     />
                     <div className="option-content">
                         <span className="option-label">java 플러그인을 위한 설정</span>
-                        <span className="option-desc">.classpath, .project 파일 초기화</span>
+                        <span id="initProjectFile-desc" className="option-desc">.classpath, .project 파일 초기화</span>
                     </div>
                 </label>
             </div>
