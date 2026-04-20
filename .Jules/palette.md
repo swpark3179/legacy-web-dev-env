@@ -10,3 +10,7 @@
 ## 2024-05-18 - Input error state accessibility
 **Learning:** Found an input field where the only feedback for an invalid value was a disabled submit button. This is confusing for users and completely inaccessible for screen readers.
 **Action:** When adding validation to input fields, always provide an inline validation message with `role="alert"`, and link it to the input using `aria-invalid` and `aria-describedby` to ensure screen reader compatibility.
+
+## 2026-04-20 - Decorative Icon Screen Reader Accessibility
+**Learning:** Icon-only buttons with existing `aria-label` attributes shouldn't expose inner text or visual icons to screen readers, to avoid redundant or confusing announcements.
+**Action:** Add `aria-hidden="true"` to spans containing purely decorative icons within buttons.
