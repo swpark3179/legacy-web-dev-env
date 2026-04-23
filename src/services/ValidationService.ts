@@ -52,14 +52,7 @@ export class ValidationService {
             this._validation.projectValid = false;
             return;
         }
-        // web.xml에서 display-name 파싱 가능 여부 확인 (context root 필수)
-        try {
-            const content = await fs.promises.readFile(webXmlPath, 'utf8');
-            const match = content.match(/<display-name>\s*([\s\S]*?)\s*<\/display-name>/);
-            this._validation.projectValid = !!(match && match[1] !== undefined);
-        } catch {
-            this._validation.projectValid = false;
-        }
+        this._validation.projectValid = true;
     }
 
     /**

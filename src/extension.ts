@@ -9,7 +9,12 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(
             'dev-web-helper.settingsView',
-            panelProvider
+            panelProvider,
+            {
+                webviewOptions: {
+                    retainContextWhenHidden: true,
+                },
+            }
         )
     );
 

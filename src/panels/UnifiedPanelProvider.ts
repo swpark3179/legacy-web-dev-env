@@ -55,7 +55,7 @@ export class UnifiedPanelProvider extends WebviewProvider {
         this._tomcatState = {
             initialized: false,
             contextRoot: '',
-            port: 7001,
+            port: 8080,
             running: false,
             debugMode: false,
             portsBlocked: false,

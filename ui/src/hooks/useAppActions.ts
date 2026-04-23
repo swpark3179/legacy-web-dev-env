@@ -8,6 +8,8 @@ export interface UseAppActionsDeps {
     setCurrentPage: (page: PageKind) => void;
     setIsGradleRunning: (value: boolean) => void;
     setTomcatIsHotReloading: (value: boolean) => void;
+    setTomcatDraftContextRoot: (value: string) => void;
+    setTomcatDraftPort: (value: string) => void;
     setChangedFiles: (value: { java: string[], query: string[], config: string[] }) => void;
 }
 
@@ -20,6 +22,8 @@ export function useAppActions(deps: UseAppActionsDeps) {
         setCurrentPage,
         setIsGradleRunning,
         setTomcatIsHotReloading,
+        setTomcatDraftContextRoot,
+        setTomcatDraftPort,
         setChangedFiles,
     } = deps;
 
@@ -84,6 +88,12 @@ export function useAppActions(deps: UseAppActionsDeps) {
         killTomcatPorts: useCallback(() => {
             postMessage({ type: 'killTomcatPorts' });
         }, []),
+        setDraftContextRoot: useCallback((value: string) => {
+            setTomcatDraftContextRoot(value);
+        }, [setTomcatDraftContextRoot]),
+        setDraftPort: useCallback((value: string) => {
+            setTomcatDraftPort(value);
+        }, [setTomcatDraftPort]),
         setStateIsHotReloading: useCallback((value: boolean) => {
             setTomcatIsHotReloading(value);
         }, [setTomcatIsHotReloading]),

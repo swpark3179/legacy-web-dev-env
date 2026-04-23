@@ -127,10 +127,9 @@ describe('ValidationService', () => {
             expect(mockValidationState.projectValid).toBe(false);
         });
 
-        it('should set projectValid true if web.xml exists and display-name is parseable', async () => {
+        it('should set projectValid true if web.xml exists', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
             (fs.statSync as jest.Mock).mockReturnValue({ isFile: () => true });
-            (fs.promises.readFile as jest.Mock).mockResolvedValue('<display-name>myapp</display-name>');
 
             await validationService.validateProjectStructure('/project');
             expect(mockValidationState.projectValid).toBe(true);
@@ -151,13 +150,12 @@ describe('ValidationService', () => {
             expect(mockValidationState.projectValid).toBe(false);
         });
 
-        it('should set projectValid false if web.xml has no display-name', async () => {
+        it('should set projectValid true if web.xml has no display-name', async () => {
             (fs.existsSync as jest.Mock).mockReturnValue(true);
             (fs.statSync as jest.Mock).mockReturnValue({ isFile: () => true });
-            (fs.promises.readFile as jest.Mock).mockResolvedValue('<web-app><servlet></servlet></web-app>');
 
             await validationService.validateProjectStructure('/project');
-            expect(mockValidationState.projectValid).toBe(false);
+            expect(mockValidationState.projectValid).toBe(true);
         });
     });
 

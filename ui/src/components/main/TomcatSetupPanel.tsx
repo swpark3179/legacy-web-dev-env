@@ -1,73 +1,78 @@
 import React, { useState } from 'react';
 import { Panel, Button } from '../common';
 import { AppActions, AppState } from '@/hooks/useAppState';
+import { TomcatInitModal } from './TomcatInitModal';
 
 export const TomcatSetupPanel: React.FC<{ state: AppState, actions: AppActions }> = ({ state, actions }) => {
-    const [portStr, setPortStr] = useState<string>(String(state.tomcat.port || 8080));
+    const [isInitModalOpen, setIsInitModalOpen] = useState(false);
     const isDisabled = state.tomcat.running || state.tomcat.initializing || state.build.isGradleRunning;
-
-    // 입력값 필터링 및 숫자 변환
-    const handlePortChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace(/[^0-9]/g, '');
-        setPortStr(value);
-    };
-
-    const port = parseInt(portStr, 10);
-    // 포트 유효성 검사 (1024 ~ 65535)
-    const isPortValid = portStr === '' ? false : Number.isInteger(port) && port >= 1024 && port <= 65535;
+    const port = Number.parseInt(state.tomcatDraft.port, 10);
+    const isPortValid = state.tomcatDraft.port !== '' && Number.isInteger(port) && port >= 1024 && port <= 65535;
+    const isContextRootValid = state.tomcatDraft.contextRoot.trim().length > 0;
 
     const handleInit = () => {
-        if (!isPortValid) return;
-        actions.tomcat.initTomcat(state.tomcat.contextRoot, port);
+        if (!isContextRootValid || !isPortValid) return;
+        actions.tomcat.initTomcat(state.tomcatDraft.contextRoot.trim(), port);
+        setIsInitModalOpen(false);
     };
 
     const getDisabledReason = () => {
-        if (!isPortValid) return '포트 번호는 1024에서 65535 사이여야 합니다.';
         if (state.tomcat.running) return 'Tomcat이 이미 실행 중입니다.';
         if (state.tomcat.initializing) return 'Tomcat 초기화 중입니다.';
         if (state.build.isGradleRunning) return '빌드 실행 중입니다.';
-        return 'Tomcat 초기화';
+        return 'Tomcat 초기화 설정';
     };
 
     return (
-        <Panel title="Tomcat 환경 설정">
-            <div className="context-root-section">
-                <label htmlFor="contextRootInput">context root</label>
-                <input
-                    type="text"
-                    id="contextRootInput"
-                    value={state.tomcat.contextRoot}
-                    readOnly
-                    disabled
-                />
-            </div>
-            <div className="context-root-section" style={{ marginTop: '8px' }}>
-                <label htmlFor="tomcatPortInput">port</label>
-                <input
-                    type="text"
-                    id="tomcatPortInput"
-                    value={portStr}
-                    disabled={isDisabled}
-                    onChange={handlePortChange}
-                    style={{ width: '100px', borderColor: !isPortValid ? 'var(--vscode-testing-iconFailed, #f14c4c)' : undefined }}
-                    aria-invalid={!isPortValid}
-                    aria-describedby={!isPortValid ? "port-error-msg" : undefined}
-                />
-                <Button
-                    variant="icon"
-                    disabled={isDisabled || !isPortValid}
-                    onClick={handleInit}
-                    title={getDisabledReason()}
-                    aria-label="Tomcat 초기화"
-                >
-                    <span className="icon">⚙</span>
-                </Button>
-            </div>
-            {!isPortValid && (
-                <div id="port-error-msg" className="validation-message invalid" role="alert" style={{ marginLeft: '45px', marginTop: '4px' }}>
-                    포트 번호는 1024~65535 사이여야 합니다.
+        <>
+            <Panel title="Tomcat 환경 설정">
+                <div className="context-root-section">
+                    <label htmlFor="contextRootInput">context root</label>
+                    <input
+                        type="text"
+                        id="contextRootInput"
+                        value={state.tomcatDraft.contextRoot}
+                        readOnly
+                        disabled
+                        placeholder="초기화 시 입력"
+                    />
                 </div>
-            )}
-        </Panel>
+                <div className="context-root-section" style={{ marginTop: '8px' }}>
+                    <label htmlFor="tomcatPortInput">port</label>
+                    <input
+                        type="text"
+                        id="tomcatPortInput"
+                        value={state.tomcatDraft.port}
+                        readOnly
+                        disabled
+                        placeholder="8080"
+                        style={{ width: '100px' }}
+                    />
+                    <Button
+                        variant="icon"
+                        disabled={isDisabled}
+                        onClick={() => setIsInitModalOpen(true)}
+                        title={getDisabledReason()}
+                        aria-label="Tomcat 초기화 설정"
+                    >
+                        <span className="icon">⚙</span>
+                    </Button>
+                </div>
+                <div className="input-hint" style={{ marginLeft: '45px', marginTop: '4px' }}>
+                    context root와 port는 초기화 버튼에서 설정합니다.
+                </div>
+            </Panel>
+
+            <TomcatInitModal
+                isOpen={isInitModalOpen}
+                contextRoot={state.tomcatDraft.contextRoot}
+                port={state.tomcatDraft.port}
+                isBusy={isDisabled}
+                onClose={() => setIsInitModalOpen(false)}
+                onConfirm={handleInit}
+                onChangeContextRoot={actions.tomcat.setDraftContextRoot}
+                onChangePort={actions.tomcat.setDraftPort}
+            />
+        </>
     );
 };
